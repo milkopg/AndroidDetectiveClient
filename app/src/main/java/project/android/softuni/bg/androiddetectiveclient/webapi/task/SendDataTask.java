@@ -19,8 +19,10 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import project.android.softuni.bg.androiddetectiveclient.util.Constants;
+import project.android.softuni.bg.androiddetectiveclient.webapi.model.ObjectBase;
 import project.android.softuni.bg.androiddetectiveclient.webapi.model.Response;
 
 /**
@@ -29,12 +31,17 @@ import project.android.softuni.bg.androiddetectiveclient.webapi.model.Response;
 
 public class SendDataTask extends AsyncTask <URL, String, String>{
    private String data;
+   private ConcurrentHashMap<String, ObjectBase> dataMap;
    private HttpURLConnection conn;
    private String requestId;
    private StringBuffer response;
 
   public SendDataTask(String data) {
     this.data = data;
+  }
+
+  public SendDataTask(ConcurrentHashMap<String, ObjectBase> dataMap) {
+    this.dataMap = dataMap;
   }
 
   @Override

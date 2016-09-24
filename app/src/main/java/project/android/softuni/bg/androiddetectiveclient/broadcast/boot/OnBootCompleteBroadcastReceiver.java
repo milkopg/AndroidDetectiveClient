@@ -26,8 +26,4 @@ public class OnBootCompleteBroadcastReceiver extends BroadcastReceiver implement
 
   }
 
-  @Override
-  public void sendBinaryData(Byte[] binaryData) {
-
-  }
 }

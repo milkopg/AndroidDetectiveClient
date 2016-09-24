@@ -14,12 +14,15 @@ import android.os.Bundle;
 import com.google.gson.Gson;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import project.android.softuni.bg.androiddetectiveclient.broadcast.boot.OnBootCompleteBroadcastReceiver;
 import project.android.softuni.bg.androiddetectiveclient.broadcast.listener.IServiceCommunicationListener;
 import project.android.softuni.bg.androiddetectiveclient.service.DetectiveService;
 import project.android.softuni.bg.androiddetectiveclient.util.ServiceConnectionManager;
+import project.android.softuni.bg.androiddetectiveclient.webapi.model.ObjectBase;
 import project.android.softuni.bg.androiddetectiveclient.webapi.model.RequestObjectToSend;
 import project.android.softuni.bg.androiddetectiveclient.webapi.task.RetrieveTask;
 import project.android.softuni.bg.androiddetectiveclient.webapi.task.SendDataTask;
@@ -32,14 +35,8 @@ public class MainActivity extends AppCompatActivity implements IServiceCommunica
 
   @Override
   public void sendJsonData(String json) {
-
+    new SendDataTask(json).execute();
   }
-
-  @Override
-  public void sendBinaryData(Byte[] binaryData) {
-
-  }
-
 
 
   @Override
@@ -61,9 +58,8 @@ public class MainActivity extends AppCompatActivity implements IServiceCommunica
 
 //    new SendDataTask(gson.toJson(requestObjectToSend)).execute();
 
-    if (ContextCompat.checkSelfPermission(this,
-            Manifest.permission.READ_SMS)
-            != PackageManager.PERMISSION_GRANTED) {
+    if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS)!= PackageManager.PERMISSION_GRANTED
+            || ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)!= PackageManager.PERMISSION_GRANTED ) {
 
       // Should we show an explanation?
       if (ActivityCompat.shouldShowRequestPermissionRationale(this,
@@ -78,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements IServiceCommunica
         // No explanation needed, we can request the permission.
 
         ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.READ_SMS},
+                new String[]{Manifest.permission.READ_SMS, Manifest.permission.READ_PHONE_STATE},
                 1);
 
         // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
