@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements IServiceCommunica
 //    mConnection = new ServiceConnection() {
 //      @Override
 //      public void onServiceConnected(ComponentName componentName, IBinder service) {
-//        DetectiveService.DetectiveSericeBinder serviceToOperate = (DetectiveService.DetectiveSericeBinder) service;
+//        DetectiveService.DetectiveServiceBinder serviceToOperate = (DetectiveService.DetectiveServiceBinder) service;
 //        serviceToOperate.getService().setServiceCallback(MainActivity.this);
 //      }
 //

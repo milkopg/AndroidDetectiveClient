@@ -27,4 +27,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:24.2.1'
     testCompile 'junit:junit:4.12'
     compile group: 'com.google.code.gson', name: 'gson', version: '1.7.2'
+    compile group: 'com.rabbitmq', name: 'amqp-client', version: '3.6.5'
 }
