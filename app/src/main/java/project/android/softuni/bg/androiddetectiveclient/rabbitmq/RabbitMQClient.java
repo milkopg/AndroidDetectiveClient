@@ -25,6 +25,7 @@ public class RabbitMQClient {
     ConnectionFactory factory = new ConnectionFactory();
     factory.setAutomaticRecoveryEnabled(true);
     factory.setUri(Constants.RABBIT_MQ_API_URL);
+
     connection = factory.newConnection();
     channel = connection.createChannel();
 
@@ -61,22 +62,22 @@ public class RabbitMQClient {
   }
 
   public static void main(String[] argv) {
-    RabbitMQClient fibonacciRpc = null;
+    RabbitMQClient rabbitMQClient = null;
     String response = null;
     try {
-      fibonacciRpc = new RabbitMQClient();
+      rabbitMQClient = new RabbitMQClient();
 
       System.out.println(" [x] Requesting fib(30)");
-      response = fibonacciRpc.sendMessage("30");
+      response = rabbitMQClient.sendMessage("30");
       System.out.println(" [.] Got '" + response + "'");
     }
     catch  (Exception e) {
       e.printStackTrace();
     }
     finally {
-      if (fibonacciRpc!= null) {
+      if (rabbitMQClient!= null) {
         try {
-          fibonacciRpc.close();
+          rabbitMQClient.close();
         }
         catch (Exception ignore) {}
       }
