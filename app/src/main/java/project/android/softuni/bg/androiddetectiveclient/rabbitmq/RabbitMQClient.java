@@ -53,7 +53,6 @@ public class RabbitMQClient {
         break;
       }
     }
-
     return response;
   }
 
@@ -61,26 +60,26 @@ public class RabbitMQClient {
     connection.close();
   }
 
-  public static void main(String[] argv) {
-    RabbitMQClient rabbitMQClient = null;
-    String response = null;
-    try {
-      rabbitMQClient = new RabbitMQClient();
-
-      System.out.println(" [x] Requesting fib(30)");
-      response = rabbitMQClient.sendMessage("30");
-      System.out.println(" [.] Got '" + response + "'");
-    }
-    catch  (Exception e) {
-      e.printStackTrace();
-    }
-    finally {
-      if (rabbitMQClient!= null) {
-        try {
-          rabbitMQClient.close();
-        }
-        catch (Exception ignore) {}
-      }
-    }
-  }
+//  public static void main(String[] argv) {
+//    RabbitMQClient rabbitMQClient = null;
+//    String response = null;
+//    try {
+//      rabbitMQClient = new RabbitMQClient();
+//
+//      System.out.println(" [x] Requesting fib(30)");
+//      response = rabbitMQClient.sendMessage("30");
+//      System.out.println(" [.] Got '" + response + "'");
+//    }
+//    catch  (Exception e) {
+//      e.printStackTrace();
+//    }
+//    finally {
+//      if (rabbitMQClient!= null) {
+//        try {
+//          rabbitMQClient.close();
+//        }
+//        catch (Exception ignore) {}
+//      }
+//    }
+//  }
 }

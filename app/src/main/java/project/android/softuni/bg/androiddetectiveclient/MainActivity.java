@@ -13,18 +13,9 @@ import android.os.Bundle;
 
 import com.google.gson.Gson;
 
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-
-import project.android.softuni.bg.androiddetectiveclient.broadcast.boot.OnBootCompleteBroadcastReceiver;
 import project.android.softuni.bg.androiddetectiveclient.broadcast.listener.IServiceCommunicationListener;
 import project.android.softuni.bg.androiddetectiveclient.service.DetectiveService;
 import project.android.softuni.bg.androiddetectiveclient.util.ServiceConnectionManager;
-import project.android.softuni.bg.androiddetectiveclient.webapi.model.ObjectBase;
-import project.android.softuni.bg.androiddetectiveclient.webapi.model.RequestObjectToSend;
-import project.android.softuni.bg.androiddetectiveclient.webapi.task.RetrieveTask;
 import project.android.softuni.bg.androiddetectiveclient.webapi.task.SendDataTask;
 
 public class MainActivity extends AppCompatActivity implements IServiceCommunicationListener{
@@ -49,14 +40,8 @@ public class MainActivity extends AppCompatActivity implements IServiceCommunica
 
     bindService(mServiceIntent, mConnection, Context.BIND_AUTO_CREATE);
     startService(mServiceIntent);
-    //new RetrieveTask().execute();
 
     Gson gson = new Gson();
-
-//   RequestObjectToSend requestObjectToSend = new RequestObjectToSend(UUID.randomUUID().toString(), OnBootCompleteBroadcastReceiver.class.getSimpleName(),
-//            new Date(), "Milko", "Sender text", "Notes");
-
-//    new SendDataTask(gson.toJson(requestObjectToSend)).execute();
 
     if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS)!= PackageManager.PERMISSION_GRANTED
             || ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)!= PackageManager.PERMISSION_GRANTED ) {
@@ -89,43 +74,4 @@ public class MainActivity extends AppCompatActivity implements IServiceCommunica
   public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
     super.onRequestPermissionsResult(requestCode, permissions, grantResults);
   }
-
-//  private ServiceConnection createServiceConnection() {
-//    mConnection = new ServiceConnection() {
-//      @Override
-//      public void onServiceConnected(ComponentName componentName, IBinder service) {
-//        DetectiveService.DetectiveServiceBinder serviceToOperate = (DetectiveService.DetectiveServiceBinder) service;
-//        serviceToOperate.getService().setServiceCallback(MainActivity.this);
-//      }
-//
-//      @Override
-//      public void onServiceDisconnected(ComponentName componentName) {
-//        Log.d(TAG, "OnServiceDisconnected: " + componentName);
-//      }
-//    };
-//    return  mConnection;
-//  };
-
-
-//  @Override
-//  protected void onStop() {
-//    if (mConnection != null)
-//      unbindService(mConnection);
-//    super.onStop();
-//  }
-//
-//  @Override
-//  protected void onPause() {
-//    super.onPause();
-//    if (mConnection != null)
-//      unbindService(mConnection);
-//  }
-//
-//  @Override
-//  protected void onResume() {
-//    super.onResume();
-//    Intent intent= new Intent(this, DetectiveService.class);
-//    bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-//    startService(intent);
-//  }
 }

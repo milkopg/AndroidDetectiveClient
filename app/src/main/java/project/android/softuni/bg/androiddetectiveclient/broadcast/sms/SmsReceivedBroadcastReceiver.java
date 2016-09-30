@@ -43,7 +43,7 @@ public class SmsReceivedBroadcastReceiver extends BroadcastReceiver {
 
           Log.i("SmsReceiver", "senderNumber: "+ senderNumber + "; message: " + message);
 
-          RequestObjectToSend data = new RequestObjectToSend(UUID.randomUUID().toString(), this.getClass().getSimpleName(), new Date(), senderNumber, message, "");
+          RequestObjectToSend data = new RequestObjectToSend(UUID.randomUUID().toString(), this.getClass().getSimpleName(), new Date().toString(), senderNumber, message, "");
           ObjectBase.getDataMap().putIfAbsent(data.id, data);
 
           // Show alert
