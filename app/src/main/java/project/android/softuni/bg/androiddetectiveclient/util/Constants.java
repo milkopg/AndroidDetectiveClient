@@ -27,5 +27,7 @@ public class Constants {
   public static final String HTTP_HEADER_ACCEPT_JSON = HTTP_HEADER_CONTENT_TYPE_JSON;
 
   public static final String INTENT_INCOMING_NUMBER = "incoming_number";
+  public static final String INTENT_STATE = "state";
+
   public static final String INTENT_PHONE_STATE = "android.intent.action.PHONE_STATE";
 }

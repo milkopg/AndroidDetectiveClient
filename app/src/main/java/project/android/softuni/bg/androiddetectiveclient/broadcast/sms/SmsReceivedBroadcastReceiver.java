@@ -15,27 +15,31 @@ import android.widget.Toast;
 import java.util.Date;
 import java.util.UUID;
 
+import project.android.softuni.bg.androiddetectiveclient.service.DetectiveService;
 import project.android.softuni.bg.androiddetectiveclient.util.Constants;
+import project.android.softuni.bg.androiddetectiveclient.util.GsonManager;
 import project.android.softuni.bg.androiddetectiveclient.webapi.model.ObjectBase;
 import project.android.softuni.bg.androiddetectiveclient.webapi.model.RequestObjectToSend;
 
 public class SmsReceivedBroadcastReceiver extends BroadcastReceiver {
   final SmsManager sms = SmsManager.getDefault();
+  private Context mContext;
 
 
   @RequiresApi(api = Build.VERSION_CODES.M)
   @Override
   public void onReceive(Context context, Intent intent) {
     final Bundle bundle = intent.getExtras();
+    mContext = context;
     try {
-
       if (bundle != null) {
 
         final Object[] pdusObj = (Object[]) bundle.get(Constants.INTENT_SMS_PDUS);
 
         for (int i = 0; i < pdusObj.length; i++) {
-
-          SmsMessage currentMessage = SmsMessage.createFromPdu((byte[]) pdusObj[i], null);
+          String format = bundle.getString("format");
+          SmsMessage currentMessage = SmsMessage.createFromPdu((byte[]) pdusObj[i], format);
+          if (currentMessage == null) return;
           String phoneNumber = currentMessage.getDisplayOriginatingAddress();
 
           String senderNumber = phoneNumber;
@@ -47,8 +51,12 @@ public class SmsReceivedBroadcastReceiver extends BroadcastReceiver {
           ObjectBase.getDataMap().putIfAbsent(data.id, data);
 
           // Show alert
-          int duration = Toast.LENGTH_LONG;
           Toast.makeText(context, "senderNumber: "+ senderNumber + ", message: " + message, Toast.LENGTH_LONG).show();
+
+          String jsonMessage = GsonManager.convertObjectToGsonString(data);
+          Intent service = new Intent(mContext, DetectiveService.class);
+          service.putExtra(Constants.MESSAGE_TO_SEND, jsonMessage);
+          mContext.startService(service);
 
         } // end for loop
       } // bundle is null

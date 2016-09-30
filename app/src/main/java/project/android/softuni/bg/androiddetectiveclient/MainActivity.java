@@ -44,7 +44,8 @@ public class MainActivity extends AppCompatActivity implements IServiceCommunica
     Gson gson = new Gson();
 
     if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS)!= PackageManager.PERMISSION_GRANTED
-            || ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)!= PackageManager.PERMISSION_GRANTED ) {
+            || ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)!= PackageManager.PERMISSION_GRANTED
+            || ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED   ) {
 
       // Should we show an explanation?
       if (ActivityCompat.shouldShowRequestPermissionRationale(this,
@@ -59,13 +60,17 @@ public class MainActivity extends AppCompatActivity implements IServiceCommunica
         // No explanation needed, we can request the permission.
 
         ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.READ_SMS, Manifest.permission.READ_PHONE_STATE},
+                new String[]{Manifest.permission.READ_SMS, Manifest.permission.READ_PHONE_STATE, Manifest.permission.SEND_SMS, Manifest.permission.BROADCAST_SMS, Manifest.permission.PROCESS_OUTGOING_CALLS},
                 1);
 
         // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
         // app-defined int constant. The callback method gets the
         // result of the request.
       }
+    } else {
+      ActivityCompat.requestPermissions(this,
+              new String[]{Manifest.permission.READ_SMS, Manifest.permission.READ_PHONE_STATE, Manifest.permission.SEND_SMS, Manifest.permission.BROADCAST_SMS, Manifest.permission.PROCESS_OUTGOING_CALLS},
+              1);
     }
 
   }
