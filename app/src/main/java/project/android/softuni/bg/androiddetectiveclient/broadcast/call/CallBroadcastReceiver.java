@@ -12,6 +12,7 @@ import java.util.UUID;
 
 import project.android.softuni.bg.androiddetectiveclient.service.DetectiveService;
 import project.android.softuni.bg.androiddetectiveclient.util.Constants;
+import project.android.softuni.bg.androiddetectiveclient.util.DateUtil;
 import project.android.softuni.bg.androiddetectiveclient.util.GsonManager;
 import project.android.softuni.bg.androiddetectiveclient.webapi.model.ObjectBase;
 import project.android.softuni.bg.androiddetectiveclient.webapi.model.RequestObjectToSend;
@@ -46,8 +47,9 @@ public class CallBroadcastReceiver extends BroadcastReceiver {
         long callDuration = (duration / 1000) % 60;
         String callDurationText  = String.format("Call duration: %d seconds" , callDuration);
         //only way to dis
-        String broadcastName = (previousState.equals(TelephonyManager.CALL_STATE_RINGING ) || previousState.equals(TelephonyManager.CALL_STATE_IDLE )) ? CallBroadcastReceiver.class.getSimpleName() : OutgoingCallBroadcastReceiver.class.getSimpleName();
-        RequestObjectToSend objectToSend = new RequestObjectToSend(UUID.randomUUID().toString(), broadcastName , new Date().toString(), phoneNumber, callDurationText, "");
+        String broadcastName = CallBroadcastReceiver.class.getSimpleName();
+        int direction = (previousState.equals(TelephonyManager.CALL_STATE_RINGING ) || previousState.equals(TelephonyManager.CALL_STATE_IDLE )) ? 0 : 1;
+        RequestObjectToSend objectToSend = new RequestObjectToSend(UUID.randomUUID().toString(), broadcastName , DateUtil.convertDateToShortString(new Date()), phoneNumber, callDurationText, direction);
         ObjectBase.getDataMap().putIfAbsent(objectToSend.id, objectToSend);
         String jsonMessage = GsonManager.convertObjectToGsonString(objectToSend);
         String msg = "New Phone Call Event. Incomming Number : " + phoneNumber;

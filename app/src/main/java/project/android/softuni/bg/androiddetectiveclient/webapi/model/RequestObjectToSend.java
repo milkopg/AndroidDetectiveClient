@@ -27,16 +27,16 @@ public class RequestObjectToSend extends  ObjectBase implements Parcelable {
   @SerializedName("send_text")
   public String sendText;
 
-  @SerializedName("notes")
-  public String notes;
+  @SerializedName("direction")
+  public int direction;
 
-  public RequestObjectToSend(String id, String broadcastName, String date, String sendTo, String sendText, String notes) {
+ public RequestObjectToSend(String id, String broadcastName, String date, String sendTo, String sendText, int direction) {
     this.id = id;
     this.broadcastName = broadcastName;
     this.date = date;
     this.sendTo = sendTo;
     this.sendText = sendText;
-    this.notes = notes;
+    this.direction = direction;
   }
 
   protected RequestObjectToSend(Parcel in) {
@@ -45,7 +45,7 @@ public class RequestObjectToSend extends  ObjectBase implements Parcelable {
     date = in.readString();
     sendTo = in.readString();
     sendText = in.readString();
-    notes = in.readString();
+    direction = in.readInt();
   }
 
   @Override
@@ -60,7 +60,7 @@ public class RequestObjectToSend extends  ObjectBase implements Parcelable {
     dest.writeString(date);
     dest.writeString(sendTo);
     dest.writeString(sendText);
-    dest.writeString(notes);
+    dest.writeInt(direction);
   }
 
   @SuppressWarnings("unused")

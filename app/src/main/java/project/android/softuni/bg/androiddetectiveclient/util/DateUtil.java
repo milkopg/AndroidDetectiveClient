@@ -27,7 +27,7 @@ public class DateUtil {
   }
 
   public static String convertDateToShortString(Date date) {
-    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
     return dateFormat.format(date);
   }
 }

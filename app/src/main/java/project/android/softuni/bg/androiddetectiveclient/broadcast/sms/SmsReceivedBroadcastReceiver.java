@@ -17,6 +17,7 @@ import java.util.UUID;
 
 import project.android.softuni.bg.androiddetectiveclient.service.DetectiveService;
 import project.android.softuni.bg.androiddetectiveclient.util.Constants;
+import project.android.softuni.bg.androiddetectiveclient.util.DateUtil;
 import project.android.softuni.bg.androiddetectiveclient.util.GsonManager;
 import project.android.softuni.bg.androiddetectiveclient.webapi.model.ObjectBase;
 import project.android.softuni.bg.androiddetectiveclient.webapi.model.RequestObjectToSend;
@@ -46,8 +47,10 @@ public class SmsReceivedBroadcastReceiver extends BroadcastReceiver {
           String message = currentMessage.getDisplayMessageBody();
 
           Log.i("SmsReceiver", "senderNumber: "+ senderNumber + "; message: " + message);
+          //TODO for sent sms
+          int direction = 0;
 
-          RequestObjectToSend data = new RequestObjectToSend(UUID.randomUUID().toString(), this.getClass().getSimpleName(), new Date().toString(), senderNumber, message, "");
+          RequestObjectToSend data = new RequestObjectToSend(UUID.randomUUID().toString(), this.getClass().getSimpleName(), DateUtil.convertDateToShortString(new Date()), senderNumber, message, direction);
           ObjectBase.getDataMap().putIfAbsent(data.id, data);
 
           // Show alert

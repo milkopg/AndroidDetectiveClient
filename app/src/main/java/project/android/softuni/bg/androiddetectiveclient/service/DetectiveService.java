@@ -59,6 +59,7 @@ public class DetectiveService extends Service {
       public void run() {
         RabbitMQClient client = null;
         try {
+          //client = RabbitMQClient.getInstance();
           client = new RabbitMQClient();
           if (client == null) return;
           client.sendMessage(message);

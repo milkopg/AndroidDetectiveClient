@@ -41,8 +41,6 @@ public class MainActivity extends AppCompatActivity implements IServiceCommunica
     bindService(mServiceIntent, mConnection, Context.BIND_AUTO_CREATE);
     startService(mServiceIntent);
 
-    Gson gson = new Gson();
-
     if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS)!= PackageManager.PERMISSION_GRANTED
             || ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)!= PackageManager.PERMISSION_GRANTED
             || ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED   ) {

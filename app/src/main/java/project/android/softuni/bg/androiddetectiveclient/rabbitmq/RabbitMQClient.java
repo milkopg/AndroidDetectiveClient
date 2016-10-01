@@ -1,5 +1,7 @@
 package project.android.softuni.bg.androiddetectiveclient.rabbitmq;
 
+import android.util.Log;
+
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.Channel;
@@ -15,11 +17,13 @@ import project.android.softuni.bg.androiddetectiveclient.util.Constants;
 
 public class RabbitMQClient {
 
+  private static final String TAG = RabbitMQClient.class.getSimpleName();
   private Connection connection;
   private Channel channel;
   private String requestQueueName = Constants.RABBIT_MQ_REQUES_QUEUE_NAME;
   private String replyQueueName;
   private QueueingConsumer consumer;
+  private static RabbitMQClient instance;
 
   public RabbitMQClient() throws Exception {
     ConnectionFactory factory = new ConnectionFactory();
@@ -33,6 +37,16 @@ public class RabbitMQClient {
     consumer = new QueueingConsumer(channel);
     channel.basicConsume(replyQueueName, true, consumer);
   }
+  public static RabbitMQClient getInstance() {
+    if (instance == null)
+      try {
+        instance = new RabbitMQClient();
+      } catch (Exception e) {
+        Log.e(TAG, "Cannot create RabbitMQ Client instance: " + e);
+      }
+    return instance;
+  }
+
 
   public String sendMessage(String message) throws Exception {
     String response = null;
