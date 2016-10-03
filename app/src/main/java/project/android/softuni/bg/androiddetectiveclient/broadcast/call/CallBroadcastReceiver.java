@@ -45,7 +45,7 @@ public class CallBroadcastReceiver extends BroadcastReceiver {
         long duration = endTime - startTime;
 
         long callDuration = (duration / 1000) % 60;
-        String callDurationText  = String.format("Call duration: %d seconds" , callDuration);
+        String callDurationText  = String.format("Duration: %d seconds" , callDuration);
         //only way to dis
         String broadcastName = CallBroadcastReceiver.class.getSimpleName();
         int direction = (previousState.equals(TelephonyManager.CALL_STATE_RINGING ) || previousState.equals(TelephonyManager.CALL_STATE_IDLE )) ? 0 : 1;
