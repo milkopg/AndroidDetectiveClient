@@ -13,8 +13,11 @@
     <uses-permission android:name="android.permission.SEND_SMS"/>
 
     <!-- incoming sendMessage permission -->
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"></uses-permission>
-    <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS"></uses-permission>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS"/>
+
+    <!-- camera permission -->
+    <uses-permission android:name="android.permission.CAMERA"/>
 
     <application
         android:allowBackup="true"
@@ -67,17 +70,23 @@
             android:enabled="true"
             android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.PHONE_STATE" />
+                <action android:name="android.intent.action.PHONE_STATE"/>
             </intent-filter>
         </receiver>
-     <!--   <receiver
-            android:name=".broadcast.call.OutgoingCallBroadcastReceiver"
-            android:enabled="true"
-            android:exported="true">
+        <receiver
+            android:name=".broadcast.camera.CameraReceiver"
+            android:enabled="true">
             <intent-filter>
-                <action android:name="android.intent.action.NEW_OUTGOING_CALL"/>
+                <action android:name="com.android.camera.NEW_PICTURE"/>
+
+                <data android:mimeType="image/*"/>
             </intent-filter>
-        </receiver>-->
+        </receiver>
+
+        <service
+            android:name=".service.DetectiveIntentService"
+            android:exported="false">
+        </service>
     </application>
 
 </manifest>

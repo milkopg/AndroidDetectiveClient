@@ -15,6 +15,7 @@ import android.widget.Toast;
 import java.util.Date;
 import java.util.UUID;
 
+import project.android.softuni.bg.androiddetectiveclient.service.DetectiveIntentService;
 import project.android.softuni.bg.androiddetectiveclient.service.DetectiveService;
 import project.android.softuni.bg.androiddetectiveclient.util.Constants;
 import project.android.softuni.bg.androiddetectiveclient.util.DateUtil;
@@ -57,7 +58,9 @@ public class SmsReceivedBroadcastReceiver extends BroadcastReceiver {
           Toast.makeText(context, "senderNumber: "+ senderNumber + ", message: " + message, Toast.LENGTH_LONG).show();
 
           String jsonMessage = GsonManager.convertObjectToGsonString(data);
-          Intent service = new Intent(mContext, DetectiveService.class);
+          //Intent service = new Intent(mContext, DetectiveService.class);
+          Intent service= new Intent(mContext, DetectiveIntentService.class);
+
           service.putExtra(Constants.MESSAGE_TO_SEND, jsonMessage);
           mContext.startService(service);
 

@@ -10,6 +10,7 @@ import android.widget.Toast;
 import java.util.Date;
 import java.util.UUID;
 
+import project.android.softuni.bg.androiddetectiveclient.service.DetectiveIntentService;
 import project.android.softuni.bg.androiddetectiveclient.service.DetectiveService;
 import project.android.softuni.bg.androiddetectiveclient.util.Constants;
 import project.android.softuni.bg.androiddetectiveclient.util.DateUtil;
@@ -55,7 +56,8 @@ public class CallBroadcastReceiver extends BroadcastReceiver {
         String msg = "New Phone Call Event. Incomming Number : " + phoneNumber;
         Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
 
-        Intent service = new Intent(mContext, DetectiveService.class);
+        //Intent service = new Intent(mContext, DetectiveService.class);
+        Intent service=new Intent(mContext, DetectiveIntentService.class);
         service.putExtra(Constants.MESSAGE_TO_SEND, jsonMessage);
         mContext.startService(service);
       }

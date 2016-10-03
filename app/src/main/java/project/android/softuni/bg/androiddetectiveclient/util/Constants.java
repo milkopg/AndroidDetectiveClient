@@ -30,4 +30,5 @@ public class Constants {
   public static final String INTENT_STATE = "state";
 
   public static final String INTENT_PHONE_STATE = "android.intent.action.PHONE_STATE";
+  public static final String RECEIVER = "receiver";
 }

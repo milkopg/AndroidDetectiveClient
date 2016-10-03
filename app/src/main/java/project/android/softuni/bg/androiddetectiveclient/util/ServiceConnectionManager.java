@@ -20,14 +20,16 @@ public class ServiceConnectionManager {
   public static ServiceConnection getInstance(final IServiceCommunicationListener callback) {
     if (mConnection == null) {
       mConnection = new ServiceConnection() {
+        DetectiveService.DetectiveServiceBinder serviceToOperate;
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
-          DetectiveService.DetectiveServiceBinder serviceToOperate = (DetectiveService.DetectiveServiceBinder) service;
+          serviceToOperate = (DetectiveService.DetectiveServiceBinder) service;
           serviceToOperate.getService().setServiceCallback(callback);
         }
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
+          serviceToOperate = null;
           Log.d(TAG, "OnServiceDisconnected: " + componentName);
         }
       };

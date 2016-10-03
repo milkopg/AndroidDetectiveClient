@@ -7,7 +7,13 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.QueueingConsumer;
 import com.rabbitmq.client.AMQP.BasicProperties;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
+import java.util.concurrent.TimeoutException;
 
 import project.android.softuni.bg.androiddetectiveclient.util.Constants;
 
@@ -25,17 +31,30 @@ public class RabbitMQClient {
   private QueueingConsumer consumer;
   private static RabbitMQClient instance;
 
-  public RabbitMQClient() throws Exception {
+  public RabbitMQClient(){
     ConnectionFactory factory = new ConnectionFactory();
-    factory.setAutomaticRecoveryEnabled(true);
-    factory.setUri(Constants.RABBIT_MQ_API_URL);
 
-    connection = factory.newConnection();
-    channel = connection.createChannel();
+    try {
+      factory.setAutomaticRecoveryEnabled(true);
+      factory.setUri(Constants.RABBIT_MQ_API_URL);
 
-    replyQueueName = channel.queueDeclare().getQueue();
-    consumer = new QueueingConsumer(channel);
-    channel.basicConsume(replyQueueName, true, consumer);
+      connection = factory.newConnection();
+      channel = connection.createChannel();
+
+      replyQueueName = channel.queueDeclare().getQueue();
+      consumer = new QueueingConsumer(channel);
+      channel.basicConsume(replyQueueName, true, consumer);
+    } catch (IOException e) {
+      Log.e(TAG, "IOException: " + e);
+    } catch (NoSuchAlgorithmException e) {
+      Log.e(TAG, "NoSuchAlgorithmException: " + e);
+    } catch (KeyManagementException e) {
+      Log.e(TAG, "KeyManagementException: " + e);
+    } catch (TimeoutException e) {
+      Log.e(TAG, "TimeoutException: " + e);
+    } catch (URISyntaxException e) {
+      Log.e(TAG, "URISyntaxException: " + e);
+    }
   }
   public static RabbitMQClient getInstance() {
     if (instance == null)

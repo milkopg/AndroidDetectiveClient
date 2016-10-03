@@ -46,7 +46,7 @@ public class DetectiveService extends Service {
   @Override
   public int onStartCommand(Intent intent, int flags, int startId) {
     Toast.makeText(getApplicationContext(), "Service started: ", Toast.LENGTH_SHORT).show();
-    if (intent.hasExtra(Constants.MESSAGE_TO_SEND)) {
+    if ((intent != null) && (intent.hasExtra(Constants.MESSAGE_TO_SEND))) {
       String message = intent.getStringExtra(Constants.MESSAGE_TO_SEND);
       sendMessage(message);
     }
@@ -66,6 +66,7 @@ public class DetectiveService extends Service {
         } catch (Exception e) {
           e.printStackTrace();
           Log.e(TAG, "Cannot send message " + e);
+          sendMessage(message);
         } finally {
           if (client!= null) {
             try {
