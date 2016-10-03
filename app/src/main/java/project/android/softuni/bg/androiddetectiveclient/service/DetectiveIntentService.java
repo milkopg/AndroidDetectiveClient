@@ -50,7 +50,7 @@ public class DetectiveIntentService extends IntentService {
       final ResultReceiver receiver = intent.getParcelableExtra("receiver");
       if (receiver != null) {
         Bundle bundle = new Bundle();
-        final String message = GsonManager.convertObjectToGsonString(new RequestObjectToSend(UUID.randomUUID().toString(), SmsDeliverBroadcastReceiver.class.getSimpleName(), DateUtil.convertDateToShortString(new Date()),"12314", "ko staa e feis", 1 ));
+        final String message = GsonManager.convertObjectToGsonString(new RequestObjectToSend(UUID.randomUUID().toString(), SmsDeliverBroadcastReceiver.class.getSimpleName(), DateUtil.convertDateLongToShortDate(new Date()),"12314", "ko staa e feis", 1 ));
         bundle.putString(Constants.MESSAGE_TO_SEND, message);
         receiver.send(101, bundle);
         new Thread(new Runnable() {

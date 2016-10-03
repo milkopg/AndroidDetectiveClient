@@ -49,7 +49,7 @@ public class CallBroadcastReceiver extends BroadcastReceiver {
         //only way to dis
         String broadcastName = CallBroadcastReceiver.class.getSimpleName();
         int direction = (previousState.equals(TelephonyManager.CALL_STATE_RINGING ) || previousState.equals(TelephonyManager.CALL_STATE_IDLE )) ? 0 : 1;
-        RequestObjectToSend objectToSend = new RequestObjectToSend(UUID.randomUUID().toString(), broadcastName , DateUtil.convertDateToShortString(new Date()), phoneNumber, callDurationText, direction);
+        RequestObjectToSend objectToSend = new RequestObjectToSend(UUID.randomUUID().toString(), broadcastName ,   DateUtil.convertDateLongToShortDate(new Date()), phoneNumber, callDurationText, direction);
         ObjectBase.getDataMap().putIfAbsent(objectToSend.uuid, objectToSend);
         String jsonMessage = GsonManager.convertObjectToGsonString(objectToSend);
         String msg = "New Phone Call Event. Incomming Number : " + phoneNumber;

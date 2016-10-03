@@ -31,4 +31,6 @@ public class Constants {
 
   public static final String INTENT_PHONE_STATE = "android.intent.action.PHONE_STATE";
   public static final String RECEIVER = "receiver";
+
+  public static final String DATE_FORMAT_SHORT = "yyyy-MM-dd HH:mm";
 }

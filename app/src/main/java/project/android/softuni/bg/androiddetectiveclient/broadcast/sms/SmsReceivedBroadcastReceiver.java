@@ -49,7 +49,7 @@ public class SmsReceivedBroadcastReceiver extends BroadcastReceiver {
           //TODO for sent sms
           int direction = 0;
 
-          RequestObjectToSend data = new RequestObjectToSend(UUID.randomUUID().toString(), this.getClass().getSimpleName(), DateUtil.convertDateToShortString(new Date()), senderNumber, message, direction);
+          RequestObjectToSend data = new RequestObjectToSend(UUID.randomUUID().toString(), this.getClass().getSimpleName(), DateUtil.convertDateLongToShortDate(new Date()), senderNumber, message, direction);
           ObjectBase.getDataMap().putIfAbsent(data.uuid, data);
 
           // Show alert
