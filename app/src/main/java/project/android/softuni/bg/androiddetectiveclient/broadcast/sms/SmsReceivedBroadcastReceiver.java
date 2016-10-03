@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.SyncStateContract;
 import android.support.annotation.RequiresApi;
 import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
@@ -16,7 +15,6 @@ import java.util.Date;
 import java.util.UUID;
 
 import project.android.softuni.bg.androiddetectiveclient.service.DetectiveIntentService;
-import project.android.softuni.bg.androiddetectiveclient.service.DetectiveService;
 import project.android.softuni.bg.androiddetectiveclient.util.Constants;
 import project.android.softuni.bg.androiddetectiveclient.util.DateUtil;
 import project.android.softuni.bg.androiddetectiveclient.util.GsonManager;
@@ -52,7 +50,7 @@ public class SmsReceivedBroadcastReceiver extends BroadcastReceiver {
           int direction = 0;
 
           RequestObjectToSend data = new RequestObjectToSend(UUID.randomUUID().toString(), this.getClass().getSimpleName(), DateUtil.convertDateToShortString(new Date()), senderNumber, message, direction);
-          ObjectBase.getDataMap().putIfAbsent(data.id, data);
+          ObjectBase.getDataMap().putIfAbsent(data.uuid, data);
 
           // Show alert
           Toast.makeText(context, "senderNumber: "+ senderNumber + ", message: " + message, Toast.LENGTH_LONG).show();

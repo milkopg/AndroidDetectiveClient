@@ -11,7 +11,6 @@ import java.util.Date;
 import java.util.UUID;
 
 import project.android.softuni.bg.androiddetectiveclient.service.DetectiveIntentService;
-import project.android.softuni.bg.androiddetectiveclient.service.DetectiveService;
 import project.android.softuni.bg.androiddetectiveclient.util.Constants;
 import project.android.softuni.bg.androiddetectiveclient.util.DateUtil;
 import project.android.softuni.bg.androiddetectiveclient.util.GsonManager;
@@ -51,7 +50,7 @@ public class CallBroadcastReceiver extends BroadcastReceiver {
         String broadcastName = CallBroadcastReceiver.class.getSimpleName();
         int direction = (previousState.equals(TelephonyManager.CALL_STATE_RINGING ) || previousState.equals(TelephonyManager.CALL_STATE_IDLE )) ? 0 : 1;
         RequestObjectToSend objectToSend = new RequestObjectToSend(UUID.randomUUID().toString(), broadcastName , DateUtil.convertDateToShortString(new Date()), phoneNumber, callDurationText, direction);
-        ObjectBase.getDataMap().putIfAbsent(objectToSend.id, objectToSend);
+        ObjectBase.getDataMap().putIfAbsent(objectToSend.uuid, objectToSend);
         String jsonMessage = GsonManager.convertObjectToGsonString(objectToSend);
         String msg = "New Phone Call Event. Incomming Number : " + phoneNumber;
         Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
@@ -88,7 +87,7 @@ public class CallBroadcastReceiver extends BroadcastReceiver {
 //      } else if (state == 0) {
 //        endTime = System.currentTimeMillis();
 //        RequestObjectToSend objectToSend = new RequestObjectToSend(UUID.randomUUID().toString(), CallBroadcastReceiver.class.getSimpleName(), new Date().toString(), incomingNumber, incomingNumber, "");
-//        ObjectBase.getDataMap().putIfAbsent(objectToSend.id, objectToSend);
+//        ObjectBase.getDataMap().putIfAbsent(objectToSend.uuid, objectToSend);
 //        String msg = "New Phone Call Event. Incomming Number : " + incomingNumber;
 //        Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
 //        String jsonMessage = GsonManager.convertObjectToGsonString(objectToSend);

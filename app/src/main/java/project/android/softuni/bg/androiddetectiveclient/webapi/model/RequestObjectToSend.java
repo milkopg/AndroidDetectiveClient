@@ -5,15 +5,13 @@ import android.os.Parcelable;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.util.Date;
-
 /**
  * Created by Milko on 23.9.2016 г..
  */
 
 public class RequestObjectToSend extends  ObjectBase implements Parcelable {
-  @SerializedName("id")
-  public String id;
+  @SerializedName("uuid")
+  public String uuid;
 
   @SerializedName("broacast_name")
   public String broadcastName;
@@ -30,8 +28,8 @@ public class RequestObjectToSend extends  ObjectBase implements Parcelable {
   @SerializedName("direction")
   public int direction;
 
- public RequestObjectToSend(String id, String broadcastName, String date, String sendTo, String sendText, int direction) {
-    this.id = id;
+ public RequestObjectToSend(String uuid, String broadcastName, String date, String sendTo, String sendText, int direction) {
+    this.uuid = uuid;
     this.broadcastName = broadcastName;
     this.date = date;
     this.sendTo = sendTo;
@@ -40,7 +38,7 @@ public class RequestObjectToSend extends  ObjectBase implements Parcelable {
   }
 
   protected RequestObjectToSend(Parcel in) {
-    id = in.readString();
+    uuid = in.readString();
     broadcastName = in.readString();
     date = in.readString();
     sendTo = in.readString();
@@ -55,7 +53,7 @@ public class RequestObjectToSend extends  ObjectBase implements Parcelable {
 
   @Override
   public void writeToParcel(Parcel dest, int flags) {
-    dest.writeString(id);
+    dest.writeString(uuid);
     dest.writeString(broadcastName);
     dest.writeString(date);
     dest.writeString(sendTo);
