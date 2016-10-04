@@ -67,7 +67,7 @@ public class RabbitMQClient {
   }
 
 
-  public String sendMessage(String message) throws Exception {
+  public String sendMessage(byte[] message) throws Exception {
     String response = null;
     String corrId = UUID.randomUUID().toString();
 
@@ -77,7 +77,7 @@ public class RabbitMQClient {
             .replyTo(replyQueueName)
             .build();
 
-    channel.basicPublish("", requestQueueName, props, message.getBytes("UTF-8"));
+    channel.basicPublish("", requestQueueName, props, message);
 
     while (true) {
       QueueingConsumer.Delivery delivery = consumer.nextDelivery();

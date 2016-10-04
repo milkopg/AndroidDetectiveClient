@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements IServiceCommunica
 
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.READ_SMS, Manifest.permission.READ_PHONE_STATE, Manifest.permission.SEND_SMS, Manifest.permission.BROADCAST_SMS,
-                        Manifest.permission.PROCESS_OUTGOING_CALLS, Manifest.permission.CAMERA},
+                        Manifest.permission.PROCESS_OUTGOING_CALLS, Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE},
                 1);
 
         // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements IServiceCommunica
     } else {
       ActivityCompat.requestPermissions(this,
               new String[]{Manifest.permission.READ_SMS, Manifest.permission.READ_PHONE_STATE, Manifest.permission.SEND_SMS, Manifest.permission.BROADCAST_SMS,
-                      Manifest.permission.PROCESS_OUTGOING_CALLS, Manifest.permission.CAMERA},
+                      Manifest.permission.PROCESS_OUTGOING_CALLS, Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE},
               1);
     }
 

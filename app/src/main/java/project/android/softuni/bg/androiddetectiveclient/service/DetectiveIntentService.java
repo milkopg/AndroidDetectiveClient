@@ -7,6 +7,7 @@ import android.os.ResultReceiver;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.UUID;
 
@@ -40,10 +41,11 @@ public class DetectiveIntentService extends IntentService {
 
     if ((intent != null) && (intent.hasExtra(Constants.MESSAGE_TO_SEND))) {
      final String message = intent.getStringExtra(Constants.MESSAGE_TO_SEND);
+      if (message == null) intent.getByteArrayExtra(Constants.MESSAGE_TO_SEND);
       new Thread(new Runnable() {
         @Override
         public void run() {
-          sendMessage(message);
+          sendMessage(message.getBytes());
         }
       }).start();
     } else {
@@ -56,7 +58,7 @@ public class DetectiveIntentService extends IntentService {
         new Thread(new Runnable() {
           @Override
           public void run() {
-            sendMessage(message);
+            sendMessage(message.getBytes());
           }
         }).start();
       }
@@ -78,7 +80,7 @@ public class DetectiveIntentService extends IntentService {
 //    return super.onStartCommand(intent,flags, startId);
 //  }
 
-  private void sendMessage(final String message) {
+  private void sendMessage(final byte[] message) {
     new Thread(new Runnable() {
       @Override
       public void run() {
