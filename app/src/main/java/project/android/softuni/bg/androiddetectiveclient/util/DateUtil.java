@@ -6,7 +6,6 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.TimeZone;
 
 /**
  * Created by Milko on 30.9.2016 г..
@@ -28,13 +27,13 @@ public class DateUtil {
   }
 
   public static String convertDateToShortString(Date date) {
-    DateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT_SHORT);
+    DateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT_SHORT_DATE_TIME);
 
     return dateFormat.format(date);
   }
 
   public static Date convertDateLongToShortDate(Date date) {
-    DateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT_SHORT);
+    DateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT_SHORT_DATE_TIME);
     String dateString = convertDateToShortString(date);
     try {
       return dateFormat.parse(dateString);
