@@ -30,13 +30,22 @@ public class RequestObjectToSend extends  ObjectBase implements Parcelable {
   @SerializedName("direction")
   public int direction;
 
-  public RequestObjectToSend(String uuid, String broadcastName, Date date, String sendTo, String sendText, int direction) {
+
+  @SerializedName("image_name")
+  private String imageName;
+
+  @SerializedName("image_path")
+  private String imagePath;
+
+  public RequestObjectToSend(String uuid, String broadcastName, Date date, String sendTo, String sendText, int direction, String imageName, String imagePath) {
     this.uuid = uuid;
     this.broadcastName = broadcastName;
     this.date = date;
     this.sendTo = sendTo;
     this.sendText = sendText;
     this.direction = direction;
+    this.imageName = imageName;
+    this.imagePath = imagePath;
   }
 
   protected RequestObjectToSend(Parcel in) {
@@ -47,6 +56,8 @@ public class RequestObjectToSend extends  ObjectBase implements Parcelable {
     sendTo = in.readString();
     sendText = in.readString();
     direction = in.readInt();
+    imageName = in.readString();
+    imagePath = in.readString();
   }
 
   @Override
@@ -62,6 +73,8 @@ public class RequestObjectToSend extends  ObjectBase implements Parcelable {
     dest.writeString(sendTo);
     dest.writeString(sendText);
     dest.writeInt(direction);
+    dest.writeString(imageName);
+    dest.writeString(imagePath);
   }
 
   @SuppressWarnings("unused")

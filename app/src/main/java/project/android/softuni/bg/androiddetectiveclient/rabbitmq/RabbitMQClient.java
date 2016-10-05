@@ -67,8 +67,8 @@ public class RabbitMQClient {
   }
 
 
-  public void sendMessage(byte[] message) throws Exception {
-    String response = null;
+  public Object sendMessage(byte[] message) throws Exception {
+    Object response = null;
     String corrId = UUID.randomUUID().toString();
 
 //    Map<String, Object> headers
@@ -82,19 +82,29 @@ public class RabbitMQClient {
 
     channel.basicPublish("", requestQueueName, props, message);
 
+
     while (true) {
       QueueingConsumer.Delivery delivery = consumer.nextDelivery();
       if (delivery.getProperties().getCorrelationId().equals(corrId)) {
-        response = new String(delivery.getBody(),"UTF-8");
-        break;
+        if (isJsonMessage(delivery.getBody())) {
+          response = new String(delivery.getBody(),"UTF-8");
+          break;
+        } else {
+          response =  delivery.getBody();
+          break;
+        }
       }
     }
-    //return response;
+    return response;
   }
 
   public void close() throws Exception {
     if (connection != null)
       connection.close();
+  }
+
+  private boolean isJsonMessage(byte[] message) {
+    return (message != null && message.length < 50000);
   }
 
 //  public static void main(String[] argv) {

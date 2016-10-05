@@ -66,7 +66,7 @@ public class DetectiveService extends Service {
         } catch (Exception e) {
           e.printStackTrace();
           Log.e(TAG, "Cannot send message " + e);
-          sendMessage(message);
+         // sendMessage(message);
         } finally {
           if (client!= null) {
             try {

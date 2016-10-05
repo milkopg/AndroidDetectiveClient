@@ -32,7 +32,7 @@ public class CameraReceiver extends BroadcastReceiver {
     Cursor cursor = context.getContentResolver().query(intent.getData(), null, null, null, null);
     if (cursor == null) return;
     cursor.moveToFirst();
-    byte [] fileByArray = new byte[0];
+    byte [] fileByArray ;
     String imagePath = null;
 
     try {cursor.getColumnNames();
