@@ -7,12 +7,17 @@ import android.os.ResultReceiver;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.common.io.Files;
+
+import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.UUID;
 
 import project.android.softuni.bg.androiddetectiveclient.broadcast.sms.SmsDeliverBroadcastReceiver;
 import project.android.softuni.bg.androiddetectiveclient.rabbitmq.RabbitMQClient;
+import project.android.softuni.bg.androiddetectiveclient.util.BitmapUtil;
 import project.android.softuni.bg.androiddetectiveclient.util.Constants;
 import project.android.softuni.bg.androiddetectiveclient.util.DateUtil;
 import project.android.softuni.bg.androiddetectiveclient.util.GsonManager;
@@ -41,14 +46,34 @@ public class DetectiveIntentService extends IntentService {
 
     if ((intent != null) && (intent.hasExtra(Constants.MESSAGE_TO_SEND))) {
      final String message = intent.getStringExtra(Constants.MESSAGE_TO_SEND);
-      if (message == null) intent.getByteArrayExtra(Constants.MESSAGE_TO_SEND);
-      new Thread(new Runnable() {
-        @Override
-        public void run() {
-          sendMessage(message.getBytes());
+      //if (message == null) intent.getByteArrayExtra(Constants.MESSAGE_TO_SEND);
+      if (message.endsWith("jpg") || message.endsWith("JPG")) {
+        String imagePath = message;
+
+        try {
+          File file = new File(imagePath);
+          byte [] fileByArray = Files.toByteArray(file);
+          final byte [] fileByArrayCompressed = BitmapUtil.getBytes(BitmapUtil.getImage(fileByArray));
+          new Thread(new Runnable() {
+            @Override
+            public void run() {
+              sendMessage(fileByArrayCompressed);
+            }
+          }).start();
+        } catch (IOException e) {
+          Log.e(TAG, "Cannote get picture" + e);
         }
-      }).start();
-    } else {
+      } else {
+        new Thread(new Runnable() {
+          @Override
+          public void run() {
+            sendMessage(message.getBytes());
+          }
+        }).start();
+      }
+
+
+    }/* else {
       final ResultReceiver receiver = intent.getParcelableExtra("receiver");
       if (receiver != null) {
         Bundle bundle = new Bundle();
@@ -63,7 +88,7 @@ public class DetectiveIntentService extends IntentService {
         }).start();
       }
 
-    }
+    }*/
   }
 
 //  @Override

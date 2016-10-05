@@ -67,13 +67,16 @@ public class RabbitMQClient {
   }
 
 
-  public String sendMessage(byte[] message) throws Exception {
+  public void sendMessage(byte[] message) throws Exception {
     String response = null;
     String corrId = UUID.randomUUID().toString();
+
+//    Map<String, Object> headers
 
     BasicProperties props = new BasicProperties
             .Builder()
             .correlationId(corrId)
+            //.headers()
             .replyTo(replyQueueName)
             .build();
 
@@ -86,11 +89,12 @@ public class RabbitMQClient {
         break;
       }
     }
-    return response;
+    //return response;
   }
 
   public void close() throws Exception {
-    connection.close();
+    if (connection != null)
+      connection.close();
   }
 
 //  public static void main(String[] argv) {
