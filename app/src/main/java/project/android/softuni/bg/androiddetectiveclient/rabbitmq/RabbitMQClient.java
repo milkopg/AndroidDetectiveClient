@@ -120,7 +120,7 @@ public class RabbitMQClient {
     BasicProperties props = new BasicProperties
             .Builder()
             .correlationId(corrId)
-            .contentEncoding(Constants.RABBIT_MQ_CONTENT_TYPE)
+            .contentType(Constants.RABBIT_MQ_CONTENT_TYPE)
             .replyTo(replyQueueName)
             .build();
 
