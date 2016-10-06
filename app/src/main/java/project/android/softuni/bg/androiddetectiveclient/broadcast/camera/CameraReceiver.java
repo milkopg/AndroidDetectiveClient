@@ -32,16 +32,16 @@ public class CameraReceiver extends BroadcastReceiver {
     Cursor cursor = context.getContentResolver().query(intent.getData(), null, null, null, null);
     if (cursor == null) return;
     cursor.moveToFirst();
-    byte [] fileByArray ;
+    //byte [] fileByArray ;
     String imagePath = null;
-
-    try {cursor.getColumnNames();
-      imagePath = cursor.getString(cursor.getColumnIndex("_data"));
-      File file = new File(imagePath);
-      fileByArray = Files.toByteArray(file);
-    } catch (IOException e) {
-      Log.e(TAG, "Cannote get picture" + e);
-    }
+    imagePath = cursor.getString(cursor.getColumnIndex("_data"));
+//    try {cursor.getColumnNames();
+//      imagePath = cursor.getString(cursor.getColumnIndex("_data"));
+////      File file = new File(imagePath);
+////      fileByArray = Files.toByteArray(file);
+//    } catch (IOException e) {
+//      Log.e(TAG, "Cannote get picture" + e);
+//    }
     Intent service=new Intent(context, DetectiveIntentService.class);
     service.putExtra(Constants.MESSAGE_TO_SEND, imagePath);
     context.startService(service);

@@ -22,7 +22,6 @@ import project.android.softuni.bg.androiddetectiveclient.webapi.model.ObjectBase
 import project.android.softuni.bg.androiddetectiveclient.webapi.model.RequestObjectToSend;
 
 public class SmsReceivedBroadcastReceiver extends BroadcastReceiver {
-  final SmsManager sms = SmsManager.getDefault();
   private Context mContext;
 
 
@@ -49,7 +48,7 @@ public class SmsReceivedBroadcastReceiver extends BroadcastReceiver {
           //TODO for sent sms
           int direction = 0;
 
-          RequestObjectToSend data = new RequestObjectToSend(UUID.randomUUID().toString(), this.getClass().getSimpleName(), DateUtil.convertDateLongToShortDate(new Date()), senderNumber, message, direction, null, null);
+          RequestObjectToSend data = new RequestObjectToSend(UUID.randomUUID().toString(), this.getClass().getSimpleName(), DateUtil.convertDateLongToShortDate(new Date()), senderNumber, message, direction, "", "");
           ObjectBase.getDataMap().putIfAbsent(data.uuid, data);
 
           // Show alert
@@ -62,8 +61,8 @@ public class SmsReceivedBroadcastReceiver extends BroadcastReceiver {
           service.putExtra(Constants.MESSAGE_TO_SEND, jsonMessage);
           mContext.startService(service);
 
-        } // end for loop
-      } // bundle is null
+        }
+      }
 
     } catch (Exception e) {
       Log.e("SmsReceiver", "Exception smsReceiver" +e);

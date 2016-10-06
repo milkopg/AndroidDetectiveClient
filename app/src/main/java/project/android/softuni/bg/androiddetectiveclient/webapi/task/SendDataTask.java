@@ -29,30 +29,30 @@ import project.android.softuni.bg.androiddetectiveclient.webapi.model.Response;
  * Created by Milko on 22.9.2016 г..
  */
 
-public class SendDataTask extends AsyncTask <URL, String, String>{
+public class SendDataTask extends AsyncTask <String, String, String>{
    private String data;
+   private byte [] binaryData;
    private ConcurrentHashMap<String, ObjectBase> dataMap;
-   private HttpURLConnection conn;
    private String requestId;
    private StringBuffer response;
 
   public SendDataTask(String data) {
     this.data = data;
   }
-
-  public SendDataTask(ConcurrentHashMap<String, ObjectBase> dataMap) {
-    this.dataMap = dataMap;
-  }
+  public SendDataTask(byte [] binaryData) {  this.binaryData = binaryData; }
 
   @Override
-  protected String doInBackground(URL... voids) {
+  protected String doInBackground(String... voids) {
+    HttpURLConnection conn;
 
     String rawData = data;
-    String encodedData = null;
+    byte [] binaryData = this.binaryData;
+    boolean isStringData = data != null ? true : false;
+    int dataLength = isStringData ? rawData.length() : binaryData.length;
     try {
-      encodedData = URLEncoder.encode( rawData , "UTF-8");
       URL u = null;
-      u = new URL(Constants.WEB_API_URL);
+      String url = voids != null && voids.length > 0 ? voids[0] : Constants.WEB_API_URL;
+      u = new URL(url);
       conn = (HttpURLConnection) u.openConnection();
       conn.setRequestMethod( Constants.HTTP_REQUEST_METHOD_POST );
       conn.setDoInput(true);
@@ -61,12 +61,12 @@ public class SendDataTask extends AsyncTask <URL, String, String>{
       conn.setRequestProperty( Constants.HTTP_HEADER_CONTENT_TYPE, Constants.HTTP_HEADER_CONTENT_TYPE_JSON );
       conn.setRequestProperty( Constants.HTTP_HEADER_HOST, Constants.HTTP_HEADER_HOST_JSONBLOB);
       conn.setRequestProperty( Constants.HTTP_HEADER_ACCEPT, Constants.HTTP_HEADER_CONTENT_TYPE_JSON);
-      conn.setRequestProperty( Constants.HTTP_HEADER_CONTENT_LENGTH, String.valueOf(rawData.length()));
+      conn.setRequestProperty( Constants.HTTP_HEADER_CONTENT_LENGTH, String.valueOf(dataLength));
 
       OutputStream os = conn.getOutputStream();
 
 
-      os.write(rawData.getBytes());
+      os.write(isStringData ? rawData.getBytes() : binaryData);
       os.close();
       conn.connect();
 
@@ -77,18 +77,8 @@ public class SendDataTask extends AsyncTask <URL, String, String>{
                 " ,Value : " + entry.getValue());
       }
       conn.getResponseCode();
-      requestId =  (map.containsKey(Constants.HTTP_HEADER_LOCATION)) ? map.get(Constants.HTTP_HEADER_LOCATION).get(0) : "";
+      requestId =  (map.containsKey(Constants.HTTP_HEADER_LOCATION)) ? map.get(Constants.HTTP_HEADER_LOCATION).get(0) : ""; //unique ID from JSONBlob, for later use
 
-
-//
-//
-//      Toast.makeText(this, response.query, Toast.LENGTH_SHORT).show();
-//
-//      List<Result> results = response.results;
-//
-//      for (Result result : results) {
-//        Toast.makeText(this, result.fromUser, Toast.LENGTH_SHORT).show();
-//      }
       Log.d(this.getClass().getSimpleName(), "Location: " + map.get("Location"));
       BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
       String inputLine;
@@ -99,8 +89,6 @@ public class SendDataTask extends AsyncTask <URL, String, String>{
       Gson gson = new Gson();
 
       Response staff = gson.fromJson(response.toString(), Response.class);
-
-
 
       Log.i("INFO2", response.toString());
 
@@ -122,15 +110,9 @@ public class SendDataTask extends AsyncTask <URL, String, String>{
     }
     try {
       Log.i("INFO", URLDecoder.decode(response, "UTF-8"));
-      //Log.i("INFO", conn.getHeaderField("Location"));
-
-
-
     } catch (UnsupportedEncodingException e) {
       e.printStackTrace();
     }
-    //progressBar.setVisibility(View.GONE);
-
   }
 
   @Override

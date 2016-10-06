@@ -2,6 +2,8 @@ package project.android.softuni.bg.androiddetectiveclient.rabbitmq;
 
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.Channel;
@@ -12,10 +14,17 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
+import project.android.softuni.bg.androiddetectiveclient.broadcast.camera.CameraReceiver;
 import project.android.softuni.bg.androiddetectiveclient.util.Constants;
+import project.android.softuni.bg.androiddetectiveclient.util.DateUtil;
+import project.android.softuni.bg.androiddetectiveclient.util.GsonManager;
+import project.android.softuni.bg.androiddetectiveclient.webapi.model.RequestObjectToSend;
 
 /**
  * Created by Milko on 26.9.2016 г..
@@ -67,35 +76,32 @@ public class RabbitMQClient {
   }
 
 
-  public Object sendMessage(byte[] message) throws Exception {
-    Object response = null;
+  /**
+   * Send regular json
+   * @param message - should be in Json Format
+   * @throws Exception
+   */
+  public void sendMessage(String message) throws Exception {
+    String response = null;
     String corrId = UUID.randomUUID().toString();
-
-//    Map<String, Object> headers
 
     BasicProperties props = new BasicProperties
             .Builder()
             .correlationId(corrId)
-            //.headers()
             .replyTo(replyQueueName)
             .build();
 
-    channel.basicPublish("", requestQueueName, props, message);
+    channel.basicPublish("", requestQueueName, props, message.getBytes("UTF-8"));
 
 
     while (true) {
       QueueingConsumer.Delivery delivery = consumer.nextDelivery();
       if (delivery.getProperties().getCorrelationId().equals(corrId)) {
-        if (isJsonMessage(delivery.getBody())) {
-          response = new String(delivery.getBody(),"UTF-8");
+          response = new String(delivery.getBody(), "UTF-8");
+          Log.d(TAG, "Send message confirmed: " + response);
           break;
-        } else {
-          response =  delivery.getBody();
-          break;
-        }
       }
     }
-    return response;
   }
 
   public void close() throws Exception {
@@ -103,30 +109,38 @@ public class RabbitMQClient {
       connection.close();
   }
 
-  private boolean isJsonMessage(byte[] message) {
-    return (message != null && message.length < 50000);
-  }
+  /**
+   * RabbitMQClient Send images
+   * @param message - raw image byte array
+   */
+  public void sendMessage(byte[] message) {
+    String corrId = UUID.randomUUID().toString();
+    String encodedGson = GsonManager.customGson.toJson(message);
 
-//  public static void main(String[] argv) {
-//    RabbitMQClient rabbitMQClient = null;
-//    String response = null;
-//    try {
-//      rabbitMQClient = new RabbitMQClient();
-//
-//      System.out.println(" [x] Requesting fib(30)");
-//      response = rabbitMQClient.sendMessage("30");
-//      System.out.println(" [.] Got '" + response + "'");
-//    }
-//    catch  (Exception e) {
-//      e.printStackTrace();
-//    }
-//    finally {
-//      if (rabbitMQClient!= null) {
-//        try {
-//          rabbitMQClient.close();
-//        }
-//        catch (Exception ignore) {}
-//      }
-//    }
-//  }
+    BasicProperties props = new BasicProperties
+            .Builder()
+            .correlationId(corrId)
+            .contentEncoding(Constants.RABBIT_MQ_CONTENT_TYPE)
+            .replyTo(replyQueueName)
+            .build();
+
+
+    try {
+      channel.basicPublish("", requestQueueName, props, encodedGson.getBytes("UTF-8"));
+
+      while (true) {
+        QueueingConsumer.Delivery delivery = null;
+
+          delivery = consumer.nextDelivery();
+          if (delivery.getProperties().getCorrelationId().equals(corrId)) {
+            Log.d(TAG, "Message Delivered and recognized");
+            break;
+          }
+      }
+    } catch (IOException e) {
+      Log.e(TAG, "sendMessage: IOException" + e);
+    } catch (InterruptedException e) {
+      Log.e(TAG, "sendMessage: byte []" + e);
+    }
+  }
 }

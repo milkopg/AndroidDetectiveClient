@@ -48,12 +48,12 @@ public class DetectiveService extends Service {
     Toast.makeText(getApplicationContext(), "Service started: ", Toast.LENGTH_SHORT).show();
     if ((intent != null) && (intent.hasExtra(Constants.MESSAGE_TO_SEND))) {
       String message = intent.getStringExtra(Constants.MESSAGE_TO_SEND);
-      sendMessage(message.getBytes());
+      sendMessage(message);
     }
     return super.onStartCommand(intent, flags, startId);
   }
 
-  private void sendMessage(final byte[] message) {
+  private void sendMessage(final String message) {
     new Thread(new Runnable() {
       @Override
       public void run() {

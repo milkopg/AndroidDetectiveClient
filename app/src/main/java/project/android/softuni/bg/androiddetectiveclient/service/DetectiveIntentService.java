@@ -2,26 +2,27 @@ package project.android.softuni.bg.androiddetectiveclient.service;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.os.Bundle;
-import android.os.ResultReceiver;
+import android.util.Base64;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.common.io.Files;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.Date;
-import java.util.UUID;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
+import java.util.List;
+import java.util.Map;
 
-import project.android.softuni.bg.androiddetectiveclient.broadcast.sms.SmsDeliverBroadcastReceiver;
 import project.android.softuni.bg.androiddetectiveclient.rabbitmq.RabbitMQClient;
 import project.android.softuni.bg.androiddetectiveclient.util.BitmapUtil;
 import project.android.softuni.bg.androiddetectiveclient.util.Constants;
-import project.android.softuni.bg.androiddetectiveclient.util.DateUtil;
 import project.android.softuni.bg.androiddetectiveclient.util.GsonManager;
-import project.android.softuni.bg.androiddetectiveclient.webapi.model.RequestObjectToSend;
 
 
 /**
@@ -40,20 +41,20 @@ public class DetectiveIntentService extends IntentService {
 
   @Override
   protected void onHandleIntent(Intent intent) {
-    //Toast.makeText(getApplicationContext(), "Service started: ", Toast.LENGTH_SHORT).show();
     Log.d(TAG, "Service started on Handle Intent: ");
 
 
     if ((intent != null) && (intent.hasExtra(Constants.MESSAGE_TO_SEND))) {
-     final String message = intent.getStringExtra(Constants.MESSAGE_TO_SEND);
-      //if (message == null) intent.getByteArrayExtra(Constants.MESSAGE_TO_SEND);
+      final String message = intent.getStringExtra(Constants.MESSAGE_TO_SEND);
       if (message.endsWith("jpg") || message.endsWith("JPG")) {
-        String imagePath = message;
+        final String imagePath = message;
 
         try {
           File file = new File(imagePath);
-          byte [] fileByArray = Files.toByteArray(file);
-          final byte [] fileByArrayCompressed = BitmapUtil.getBytes(BitmapUtil.getImage(fileByArray));
+          final byte[] fileByArray = Files.toByteArray(file);
+          final byte[] fileByArrayCompressed = BitmapUtil.getBytes(BitmapUtil.getImage(fileByArray));
+          //sendData(Constants.WEB_API_URL , fileByArrayCompressed); // for Async Task WEB API
+
           new Thread(new Runnable() {
             @Override
             public void run() {
@@ -67,44 +68,45 @@ public class DetectiveIntentService extends IntentService {
         new Thread(new Runnable() {
           @Override
           public void run() {
-            sendMessage(message.getBytes());
+            sendMessage(message);
           }
         }).start();
       }
-
-
-    }/* else {
-      final ResultReceiver receiver = intent.getParcelableExtra("receiver");
-      if (receiver != null) {
-        Bundle bundle = new Bundle();
-        final String message = GsonManager.convertObjectToGsonString(new RequestObjectToSend(UUID.randomUUID().toString(), SmsDeliverBroadcastReceiver.class.getSimpleName(), DateUtil.convertDateLongToShortDate(new Date()),"12314", "ko staa e feis", 1 ));
-        bundle.putString(Constants.MESSAGE_TO_SEND, message);
-        receiver.send(101, bundle);
-        new Thread(new Runnable() {
-          @Override
-          public void run() {
-            sendMessage(message.getBytes());
-          }
-        }).start();
-      }
-
-    }*/
+    }
   }
 
-//  @Override
-//  public int onStartCommand(Intent intent, int flags, int startId) {
-//    if ((intent != null) && (intent.hasExtra(Constants.MESSAGE_TO_SEND))) {
-//      final String message = intent.getStringExtra(Constants.MESSAGE_TO_SEND);
-//      new Thread(new Runnable() {
-//        @Override
-//        public void run() {
-//          sendMessage(message);
-//        }
-//      }).start();
-//    }
-//    return super.onStartCommand(intent,flags, startId);
-//  }
+  private void sendMessage(final String message) {
+    new Thread(new Runnable() {
+      @Override
+      public void run() {
+        RabbitMQClient client = null;
+        try {
+          //client = RabbitMQClient.getInstance();
+          client = new RabbitMQClient();
+          if (client == null) return;
+          client.sendMessage(message);
+        } catch (Exception e) {
+          e.printStackTrace();
+          Log.e(TAG, "Cannot send message " + e);
+          // sendMessage(message);
+        } finally {
+          if (client != null) {
+            try {
+              client.close();
+            } catch (Exception ignore) {
+              Log.e(TAG, "Cannot close the client " + ignore);
+            }
+          }
+        }
+      }
+    }).start();
+  }
 
+  /**
+   * Send image
+   *
+   * @param message byte array image raw format
+   */
   private void sendMessage(final byte[] message) {
     new Thread(new Runnable() {
       @Override
@@ -118,13 +120,12 @@ public class DetectiveIntentService extends IntentService {
         } catch (Exception e) {
           e.printStackTrace();
           Log.e(TAG, "Cannot send message " + e);
-         // sendMessage(message);
+
         } finally {
-          if (client!= null) {
+          if (client != null) {
             try {
               client.close();
-            }
-            catch (Exception ignore) {
+            } catch (Exception ignore) {
               Log.e(TAG, "Cannot close the client " + ignore);
             }
           }
@@ -132,4 +133,79 @@ public class DetectiveIntentService extends IntentService {
       }
     }).start();
   }
+
+  protected String sendData(String url, byte[] data) {
+    HttpURLConnection conn = initHttpConnection(url, Constants.HTTP_HEADER_CONTENT_TYPE_JSON);
+    StringBuffer response = null;
+
+    try {
+      GsonManager.ByteArrayToBase64TypeAdapter adapter = new GsonManager.ByteArrayToBase64TypeAdapter();
+      String encodedGson = GsonManager.customGson.toJson(data);
+      conn.setRequestProperty(Constants.HTTP_HEADER_CONTENT_LENGTH, String.valueOf(encodedGson.length()));
+
+      OutputStream os = conn.getOutputStream();
+      os.write(encodedGson.getBytes());
+      os.close();
+      conn.connect();
+
+      //get all headers
+      Map<String, List<String>> map = conn.getHeaderFields();
+      for (Map.Entry<String, List<String>> entry : map.entrySet()) {
+        System.out.println("Key : " + entry.getKey() +
+                " ,Value : " + entry.getValue());
+      }
+      conn.getResponseCode();
+      String requestId = (map.containsKey(Constants.HTTP_HEADER_LOCATION)) ? map.get(Constants.HTTP_HEADER_LOCATION).get(0) : "";
+
+      if (conn.getResponseCode() == 201) {
+        Log.d(this.getClass().getSimpleName(), "Location: " + map.get("Location"));
+        String inputLine;
+        response = new StringBuffer();
+
+        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        response = new StringBuffer();
+        while ((inputLine = in.readLine()) != null) {
+          response.append(inputLine);
+        }
+
+        byte[] deserializedByteArray = Base64.decode(response.toString(), Base64.NO_WRAP);
+
+        BitmapUtil.getImage(deserializedByteArray);
+        Log.i("INFO2", response.toString());
+      }
+
+    } catch (MalformedURLException e) {
+      Log.e(TAG, "MalformedURLException" + e);
+    } catch (ProtocolException e) {
+      Log.e(TAG, "ProtocolException" + e);
+    } catch (IOException e) {
+      Log.e(TAG, "IOException" + e);
+      e.printStackTrace();
+    }
+    return response.toString();
+  }
+
+  private HttpURLConnection initHttpConnection(String url, String mimeType) {
+    HttpURLConnection conn = null;
+    URL u = null;
+    try {
+      u = new URL(url);
+      conn = (HttpURLConnection) u.openConnection();
+      conn.setRequestMethod(Constants.HTTP_REQUEST_METHOD_POST);
+      conn.setDoInput(true);
+      conn.setDoOutput(true);
+
+      conn.setRequestProperty(Constants.HTTP_HEADER_CONTENT_TYPE, Constants.HTTP_HEADER_CONTENT_TYPE_JSON);
+      conn.setRequestProperty(Constants.HTTP_HEADER_HOST, Constants.HTTP_HEADER_HOST_JSONBLOB);
+      conn.setRequestProperty(Constants.HTTP_HEADER_ACCEPT, mimeType);
+    } catch (MalformedURLException e) {
+      Log.e(TAG, "initHttpConnection MalformedURLException: " + e);
+    } catch (ProtocolException e) {
+      Log.e(TAG, "initHttpConnection ProtocolException: " + e);
+    } catch (IOException e) {
+      Log.e(TAG, "initHttpConnection IOException: " + e);
+    }
+    return conn;
+  }
+
 }
