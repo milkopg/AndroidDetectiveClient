@@ -54,23 +54,12 @@ public class DetectiveIntentService extends IntentService {
           final byte[] fileByArray = Files.toByteArray(file);
           final byte[] fileByArrayCompressed = BitmapUtil.getBytes(BitmapUtil.getImage(fileByArray));
           //sendData(Constants.WEB_API_URL , fileByArrayCompressed); // for Async Task WEB API
-
-          new Thread(new Runnable() {
-            @Override
-            public void run() {
-              sendMessage(fileByArrayCompressed);
-            }
-          }).start();
+           sendMessage(fileByArrayCompressed);
         } catch (IOException e) {
           Log.e(TAG, "Cannote get picture" + e);
         }
       } else {
-        new Thread(new Runnable() {
-          @Override
-          public void run() {
-            sendMessage(message);
-          }
-        }).start();
+          sendMessage(message);
       }
     }
   }
