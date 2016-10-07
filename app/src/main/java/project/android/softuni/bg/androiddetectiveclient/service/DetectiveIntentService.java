@@ -1,7 +1,11 @@
 package project.android.softuni.bg.androiddetectiveclient.service;
 
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.os.Handler;
+import android.provider.ContactsContract;
 import android.util.Base64;
 import android.util.Log;
 
@@ -19,6 +23,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
+import project.android.softuni.bg.androiddetectiveclient.observer.CustomContentObserver;
 import project.android.softuni.bg.androiddetectiveclient.rabbitmq.RabbitMQClient;
 import project.android.softuni.bg.androiddetectiveclient.util.BitmapUtil;
 import project.android.softuni.bg.androiddetectiveclient.util.Constants;
@@ -29,14 +34,26 @@ import project.android.softuni.bg.androiddetectiveclient.util.GsonManager;
  * An {@link IntentService} subclass for handling asynchronous task requests in
  * a service on a separate handler thread.
  * <p>
- * TODO: Customize class - update intent actions and extra parameters.
+
  */
 public class DetectiveIntentService extends IntentService {
 
   private static final String TAG = DetectiveIntentService.class.getSimpleName();
 
+  private Context mContext;
+
+  private CustomContentObserver mContentObserver;
+
   public DetectiveIntentService() {
     super(DetectiveIntentService.class.getName());
+  }
+
+  @Override
+  public void onCreate() {
+    mContext = this;
+    mContentObserver = new CustomContentObserver(new Handler(), mContext);
+    this.getContentResolver().registerContentObserver(ContactsContract.Contacts.CONTENT_URI, true, mContentObserver);
+    super.onCreate();
   }
 
   @Override
@@ -196,5 +213,8 @@ public class DetectiveIntentService extends IntentService {
     }
     return conn;
   }
+
+
+
 
 }
