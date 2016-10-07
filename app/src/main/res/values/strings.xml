@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Android Detective Client</string>
+    <string name="contact_list_changed">Contact list changed</string>
 </resources>

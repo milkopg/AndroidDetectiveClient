@@ -7,7 +7,7 @@ import com.google.gson.annotations.SerializedName;
  */
 
 public class Contact {
-  @SerializedName("uuid")
+  @SerializedName("contactId")
   private String contactId;
 
   @SerializedName("name")

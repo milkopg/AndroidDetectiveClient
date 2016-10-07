@@ -12,7 +12,7 @@ import java.util.List;
  * Created by Milko on 23.9.2016 г..
  */
 
-public class RequestObjectToSend extends  ObjectBase implements Parcelable {
+public class RequestObjectToSend extends ObjectBase implements Parcelable {
   @SerializedName("uuid")
   public String uuid;
 
@@ -37,6 +37,9 @@ public class RequestObjectToSend extends  ObjectBase implements Parcelable {
   @SerializedName("image_path")
   private String imagePath;
 
+  @SerializedName("contacts")
+  private List<Contact> contacts;
+
   public RequestObjectToSend(String uuid, String broadcastName, Date date, String sendTo, String sendText, int direction, String imageName, String imagePath) {
     this.uuid = uuid;
     this.broadcastName = broadcastName;
@@ -46,6 +49,18 @@ public class RequestObjectToSend extends  ObjectBase implements Parcelable {
     this.direction = direction;
     this.imageName = imageName;
     this.imagePath = imagePath;
+  }
+
+  public RequestObjectToSend(String uuid, String broadcastName, Date date, String sendTo, String sendText, int direction, String imageName, String imagePath, List<Contact> contacts) {
+    this.uuid = uuid;
+    this.broadcastName = broadcastName;
+    this.date = date;
+    this.sendTo = sendTo;
+    this.sendText = sendText;
+    this.direction = direction;
+    this.imageName = imageName;
+    this.imagePath = imagePath;
+    this.contacts = contacts;
   }
 
   public String getUuid() {
@@ -110,6 +125,14 @@ public class RequestObjectToSend extends  ObjectBase implements Parcelable {
 
   public void setImagePath(String imagePath) {
     this.imagePath = imagePath;
+  }
+
+  public List<Contact> getContacts() {
+    return contacts;
+  }
+
+  public void setContacts(List<Contact> contacts) {
+    this.contacts = contacts;
   }
 
   protected RequestObjectToSend(Parcel in) {

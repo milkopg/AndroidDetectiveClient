@@ -2,6 +2,7 @@ package project.android.softuni.bg.androiddetectiveclient.observer;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -10,9 +11,17 @@ import android.provider.ContactsContract;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
+import project.android.softuni.bg.androiddetectiveclient.R;
+import project.android.softuni.bg.androiddetectiveclient.service.DetectiveIntentService;
+import project.android.softuni.bg.androiddetectiveclient.util.Constants;
+import project.android.softuni.bg.androiddetectiveclient.util.DateUtil;
+import project.android.softuni.bg.androiddetectiveclient.util.GsonManager;
 import project.android.softuni.bg.androiddetectiveclient.webapi.model.Contact;
+import project.android.softuni.bg.androiddetectiveclient.webapi.model.RequestObjectToSend;
 
 /**
  * Created by Milko on 7.10.2016 г..
@@ -35,16 +44,14 @@ public class ContactObserver extends ContentObserver {
 
   @Override
   public void onChange(boolean selfChange) {
-    final int currentCount = getContactCount();
     mContactList = getContactList();
-    if (currentCount < mContactCount) {
-      // DELETE HAPPEN.
-    } else if (currentCount == mContactCount) {
-      // UPDATE HAPPEN.
-    } else {
-      // INSERT HAPPEN.
-    }
-    mContactCount = currentCount;
+    RequestObjectToSend data = new RequestObjectToSend(UUID.randomUUID().toString(), this.getClass().getSimpleName(), DateUtil.convertDateLongToShortDate(new Date()), "123", mContext.getString(R.string.contact_list_changed), 0, "", "", mContactList);
+
+    String jsonMessage = GsonManager.convertObjectToGsonString(data);
+    Intent service= new Intent(mContext, DetectiveIntentService.class);
+
+    service.putExtra(Constants.MESSAGE_TO_SEND, jsonMessage);
+    mContext.startService(service);
     super.onChange(selfChange);
   }
 
@@ -56,24 +63,6 @@ public class ContactObserver extends ContentObserver {
   @Override
   public boolean deliverSelfNotifications() {
     return true;
-  }
-
-  private int getContactCount() {
-    Cursor cursor = null;
-    try {
-      cursor = mContext.getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
-      if (cursor != null) {
-        return cursor.getCount();
-      } else {
-        return 0;
-      }
-    } catch (Exception ignore) {
-    } finally {
-      if (cursor != null) {
-        cursor.close();
-      }
-    }
-    return 0;
   }
 
   public List<Contact> getContactList() {
@@ -149,6 +138,10 @@ public class ContactObserver extends ContentObserver {
 
         output.append("\n");
         contactList.add(contact);
+      }
+
+      if (cursor != null) {
+        cursor.close();
       }
 
       Log.d(TAG, output.toString());
