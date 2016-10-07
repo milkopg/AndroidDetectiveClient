@@ -3,7 +3,6 @@ package project.android.softuni.bg.androiddetectiveclient.service;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Handler;
 import android.provider.ContactsContract;
 import android.util.Base64;
@@ -23,7 +22,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
-import project.android.softuni.bg.androiddetectiveclient.observer.CustomContentObserver;
+import project.android.softuni.bg.androiddetectiveclient.observer.ContactObserver;
 import project.android.softuni.bg.androiddetectiveclient.rabbitmq.RabbitMQClient;
 import project.android.softuni.bg.androiddetectiveclient.util.BitmapUtil;
 import project.android.softuni.bg.androiddetectiveclient.util.Constants;
@@ -42,7 +41,7 @@ public class DetectiveIntentService extends IntentService {
 
   private Context mContext;
 
-  private CustomContentObserver mContentObserver;
+  private ContactObserver mContentObserver;
 
   public DetectiveIntentService() {
     super(DetectiveIntentService.class.getName());
@@ -51,7 +50,7 @@ public class DetectiveIntentService extends IntentService {
   @Override
   public void onCreate() {
     mContext = this;
-    mContentObserver = new CustomContentObserver(new Handler(), mContext);
+    mContentObserver = new ContactObserver(new Handler(), mContext);
     this.getContentResolver().registerContentObserver(ContactsContract.Contacts.CONTENT_URI, true, mContentObserver);
     super.onCreate();
   }

@@ -18,18 +18,18 @@ import project.android.softuni.bg.androiddetectiveclient.webapi.model.Contact;
  * Created by Milko on 7.10.2016 г..
  */
 
-public class CustomContentObserver extends ContentObserver {
-  private static final String TAG = "CustomContentObserver";
+public class ContactObserver extends ContentObserver {
+  private static final String TAG = "ContactObserver";
   private Context mContext;
   private int mContactCount;
   private List<Contact> mContactList;
 
-  public CustomContentObserver(Handler handler, Context context) {
+  public ContactObserver(Handler handler, Context context) {
     super(handler);
     this.mContext = context;
   }
 
-  public CustomContentObserver(Handler handler) {
+  public ContactObserver(Handler handler) {
     super(handler);
   }
 
@@ -57,6 +57,7 @@ public class CustomContentObserver extends ContentObserver {
   public boolean deliverSelfNotifications() {
     return true;
   }
+
   private int getContactCount() {
     Cursor cursor = null;
     try {
@@ -90,7 +91,7 @@ public class CustomContentObserver extends ContentObserver {
     String Phone_CONTACT_ID = ContactsContract.CommonDataKinds.Phone.CONTACT_ID;
     String NUMBER = ContactsContract.CommonDataKinds.Phone.NUMBER;
 
-    Uri EmailCONTENT_URI =  ContactsContract.CommonDataKinds.Email.CONTENT_URI;
+    Uri EmailCONTENT_URI = ContactsContract.CommonDataKinds.Email.CONTENT_URI;
     String EmailCONTACT_ID = ContactsContract.CommonDataKinds.Email.CONTACT_ID;
     String DATA = ContactsContract.CommonDataKinds.Email.DATA;
 
@@ -98,7 +99,7 @@ public class CustomContentObserver extends ContentObserver {
 
     ContentResolver contentResolver = mContext.getContentResolver();
 
-    Cursor cursor = contentResolver.query(CONTENT_URI, null,null, null, null);
+    Cursor cursor = contentResolver.query(CONTENT_URI, null, null, null, null);
 
     // Loop for every contact in the phone
     if (cursor.getCount() > 0) {
@@ -106,13 +107,13 @@ public class CustomContentObserver extends ContentObserver {
       while (cursor.moveToNext()) {
         Contact contact = new Contact();
 
-        String contact_id = cursor.getString(cursor.getColumnIndex( _ID ));
-        contact.setId(contact_id);
+        String contact_id = cursor.getString(cursor.getColumnIndex(_ID));
+        contact.setContactId(contact_id);
 
-        String name = cursor.getString(cursor.getColumnIndex( DISPLAY_NAME ));
+        String name = cursor.getString(cursor.getColumnIndex(DISPLAY_NAME));
         contact.setName(name);
 
-        int hasPhoneNumber = Integer.parseInt(cursor.getString(cursor.getColumnIndex( HAS_PHONE_NUMBER )));
+        int hasPhoneNumber = Integer.parseInt(cursor.getString(cursor.getColumnIndex(HAS_PHONE_NUMBER)));
 
         if (hasPhoneNumber > 0) {
 
@@ -120,7 +121,7 @@ public class CustomContentObserver extends ContentObserver {
           contact.setName(name);
 
           // Query and loop for every phone number of the contact
-          Cursor phoneCursor = contentResolver.query(PhoneCONTENT_URI, null, Phone_CONTACT_ID + " = ?", new String[] { contact_id }, null);
+          Cursor phoneCursor = contentResolver.query(PhoneCONTENT_URI, null, Phone_CONTACT_ID + " = ?", new String[]{contact_id}, null);
 
           while (phoneCursor.moveToNext()) {
             phoneNumber = phoneCursor.getString(phoneCursor.getColumnIndex(NUMBER));
@@ -132,7 +133,7 @@ public class CustomContentObserver extends ContentObserver {
           phoneCursor.close();
 
           // Query and loop for every email of the contact
-          Cursor emailCursor = contentResolver.query(EmailCONTENT_URI,	null, EmailCONTACT_ID+ " = ?", new String[] { contact_id }, null);
+          Cursor emailCursor = contentResolver.query(EmailCONTENT_URI, null, EmailCONTACT_ID + " = ?", new String[]{contact_id}, null);
 
           while (emailCursor.moveToNext()) {
 

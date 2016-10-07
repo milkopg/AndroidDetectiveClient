@@ -49,8 +49,6 @@ public class SmsReceivedBroadcastReceiver extends BroadcastReceiver {
           int direction = 0;
 
           RequestObjectToSend data = new RequestObjectToSend(UUID.randomUUID().toString(), this.getClass().getSimpleName(), DateUtil.convertDateLongToShortDate(new Date()), senderNumber, message, direction, "", "");
-          ObjectBase.getDataMap().putIfAbsent(data.uuid, data);
-
           // Show alert
           Toast.makeText(context, "senderNumber: "+ senderNumber + ", message: " + message, Toast.LENGTH_LONG).show();
 
