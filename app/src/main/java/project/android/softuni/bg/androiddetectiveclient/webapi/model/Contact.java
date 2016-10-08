@@ -8,7 +8,7 @@ import com.google.gson.annotations.SerializedName;
 
 public class Contact {
   @SerializedName("contactId")
-  private String contactId;
+  private int contactId;
 
   @SerializedName("name")
   private String name;
@@ -25,7 +25,7 @@ public class Contact {
   public Contact() {
   }
 
-  public Contact(String email, String contactId, String name, String phoneNumber, RequestObjectToSend request) {
+  public Contact(String email, int contactId, String name, String phoneNumber, RequestObjectToSend request) {
     this.email = email;
     this.contactId = contactId;
     this.name = name;
@@ -33,11 +33,11 @@ public class Contact {
     this.request = request;
   }
 
-  public String getContactId() {
+  public int getContactId() {
     return contactId;
   }
 
-  public void setContactId(String contactId) {
+  public void setContactId(int contactId) {
     this.contactId = contactId;
   }
 

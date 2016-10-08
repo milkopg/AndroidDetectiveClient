@@ -90,6 +90,7 @@ public class DetectiveIntentService extends IntentService {
           client = new RabbitMQClient();
           if (client == null) return;
           client.sendMessage(message);
+          Log.d(TAG, "sendMessage " + message);
         } catch (Exception e) {
           e.printStackTrace();
           Log.e(TAG, "Cannot send message " + e);
@@ -122,6 +123,7 @@ public class DetectiveIntentService extends IntentService {
           client = new RabbitMQClient();
           if (client == null) return;
           client.sendMessage(message);
+          Log.d(TAG, "sendMessage byte array");
         } catch (Exception e) {
           e.printStackTrace();
           Log.e(TAG, "Cannot send message " + e);

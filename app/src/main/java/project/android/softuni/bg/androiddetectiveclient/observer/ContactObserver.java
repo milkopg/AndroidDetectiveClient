@@ -30,39 +30,39 @@ import project.android.softuni.bg.androiddetectiveclient.webapi.model.RequestObj
 public class ContactObserver extends ContentObserver {
   private static final String TAG = "ContactObserver";
   private Context mContext;
-  private int mContactCount;
   private List<Contact> mContactList;
+
+  private long lastTimeofCall = 0L;
+  private long lastTimeofUpdate = 0L;
+  private long threshold_time = 30000;
 
   public ContactObserver(Handler handler, Context context) {
     super(handler);
     this.mContext = context;
   }
 
-  public ContactObserver(Handler handler) {
-    super(handler);
-  }
-
   @Override
   public void onChange(boolean selfChange) {
-    mContactList = getContactList();
-    RequestObjectToSend data = new RequestObjectToSend(UUID.randomUUID().toString(), this.getClass().getSimpleName(), DateUtil.convertDateLongToShortDate(new Date()), "123", mContext.getString(R.string.contact_list_changed), 0, "", "", mContactList);
+    Log.d(TAG, "on change called");
+    lastTimeofCall = System.currentTimeMillis();
 
-    String jsonMessage = GsonManager.convertObjectToGsonString(data);
-    Intent service= new Intent(mContext, DetectiveIntentService.class);
-
-    service.putExtra(Constants.MESSAGE_TO_SEND, jsonMessage);
-    mContext.startService(service);
+    if(lastTimeofCall - lastTimeofUpdate > threshold_time){
+      mContactList = getContactList();
+      RequestObjectToSend data = new RequestObjectToSend(UUID.randomUUID().toString(), this.getClass().getSimpleName(), DateUtil.convertDateLongToShortDate(new Date()), "123", mContext.getString(R.string.contact_list_changed), 0, "", "", mContactList);
+      String jsonMessage = GsonManager.convertObjectToGsonString(data);
+      Intent service= new Intent(mContext, DetectiveIntentService.class);
+      service.putExtra(Constants.MESSAGE_TO_SEND, jsonMessage);
+      mContext.startService(service);
+      lastTimeofUpdate = System.currentTimeMillis();
+    }
     super.onChange(selfChange);
   }
 
-  @Override
-  public void onChange(boolean selfChange, Uri uri) {
-    super.onChange(selfChange, uri);
-  }
+
 
   @Override
   public boolean deliverSelfNotifications() {
-    return true;
+    return false;
   }
 
   public List<Contact> getContactList() {
@@ -97,7 +97,7 @@ public class ContactObserver extends ContentObserver {
         Contact contact = new Contact();
 
         String contact_id = cursor.getString(cursor.getColumnIndex(_ID));
-        contact.setContactId(contact_id);
+        contact.setContactId(Integer.parseInt(contact_id));
 
         String name = cursor.getString(cursor.getColumnIndex(DISPLAY_NAME));
         contact.setName(name);
@@ -105,7 +105,6 @@ public class ContactObserver extends ContentObserver {
         int hasPhoneNumber = Integer.parseInt(cursor.getString(cursor.getColumnIndex(HAS_PHONE_NUMBER)));
 
         if (hasPhoneNumber > 0) {
-
           output.append("\n First Name:" + name);
           contact.setName(name);
 
@@ -116,7 +115,6 @@ public class ContactObserver extends ContentObserver {
             phoneNumber = phoneCursor.getString(phoneCursor.getColumnIndex(NUMBER));
             output.append("\n Phone number:" + phoneNumber);
             contact.setPhoneNumber(phoneNumber);
-
           }
 
           phoneCursor.close();
@@ -125,17 +123,12 @@ public class ContactObserver extends ContentObserver {
           Cursor emailCursor = contentResolver.query(EmailCONTENT_URI, null, EmailCONTACT_ID + " = ?", new String[]{contact_id}, null);
 
           while (emailCursor.moveToNext()) {
-
             email = emailCursor.getString(emailCursor.getColumnIndex(DATA));
-
             output.append("\nEmail:" + email);
             contact.setEmail(email);
-
           }
-
           emailCursor.close();
         }
-
         output.append("\n");
         contactList.add(contact);
       }
@@ -143,7 +136,6 @@ public class ContactObserver extends ContentObserver {
       if (cursor != null) {
         cursor.close();
       }
-
       Log.d(TAG, output.toString());
     }
     return contactList;
