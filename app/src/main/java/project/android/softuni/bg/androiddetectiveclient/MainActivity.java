@@ -22,7 +22,7 @@ import project.android.softuni.bg.androiddetectiveclient.util.Constants;
 import project.android.softuni.bg.androiddetectiveclient.util.ServiceConnectionManager;
 import project.android.softuni.bg.androiddetectiveclient.webapi.task.SendDataTask;
 
-public class MainActivity extends AppCompatActivity implements IServiceCommunicationListener, CustomResultReceiver.Receiver{
+public class MainActivity extends AppCompatActivity implements IServiceCommunicationListener, CustomResultReceiver.Receiver {
 
   private ServiceConnection mConnection;
   private Intent mServiceIntent;
@@ -48,47 +48,51 @@ public class MainActivity extends AppCompatActivity implements IServiceCommunica
     mReceiver = new CustomResultReceiver(new Handler());
     mReceiver.setReceiver(this);
 
-   // mServiceIntent = new Intent(this, DetectiveService.class);
+    // mServiceIntent = new Intent(this, DetectiveService.class);
 
-   // mServiceIntent= new Intent(this, DetectiveIntentService.class);
+    // mServiceIntent= new Intent(this, DetectiveIntentService.class);
     mServiceIntent = new Intent(Intent.ACTION_SYNC, null, this, DetectiveIntentService.class);
     mServiceIntent.putExtra(Constants.RECEIVER, mReceiver);
     startService(mServiceIntent);
 
-     bindService(mServiceIntent, mConnection, Context.BIND_AUTO_CREATE);
+    bindService(mServiceIntent, mConnection, Context.BIND_AUTO_CREATE);
 
-    if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS)!= PackageManager.PERMISSION_GRANTED
-            || ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)!= PackageManager.PERMISSION_GRANTED
-            || ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED   ) {
+    if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED
+            || ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED
+            || ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
 
-      // Should we show an explanation?
-      if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-              Manifest.permission.READ_SMS)) {
-
-        // Show an expanation to the user *asynchronously* -- don't block
-        // this thread waiting for the user's response! After the user
-        // sees the explanation, try again to request the permission.
-
-      } else {
-
-        // No explanation needed, we can request the permission.
-
-        ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.READ_SMS, Manifest.permission.READ_PHONE_STATE, Manifest.permission.SEND_SMS, Manifest.permission.BROADCAST_SMS,
-                        Manifest.permission.PROCESS_OUTGOING_CALLS, Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_CONTACTS},
-                1);
-
-        // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-        // app-defined int constant. The callback method gets the
-        // result of the request.
-      }
-    } else {
       ActivityCompat.requestPermissions(this,
               new String[]{Manifest.permission.READ_SMS, Manifest.permission.READ_PHONE_STATE, Manifest.permission.SEND_SMS, Manifest.permission.BROADCAST_SMS,
                       Manifest.permission.PROCESS_OUTGOING_CALLS, Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_CONTACTS},
               1);
-    }
 
+//      // Should we show an explanation?
+//      if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+//              Manifest.permission.READ_SMS)) {
+//
+//        // Show an expanation to the user *asynchronously* -- don't block
+//        // this thread waiting for the user's response! After the user
+//        // sees the explanation, try again to request the permission.
+//
+//      } else {
+//
+//        // No explanation needed, we can request the permission.
+//
+//        ActivityCompat.requestPermissions(this,
+//                new String[]{Manifest.permission.READ_SMS, Manifest.permission.READ_PHONE_STATE, Manifest.permission.SEND_SMS, Manifest.permission.BROADCAST_SMS,
+//                        Manifest.permission.PROCESS_OUTGOING_CALLS, Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_CONTACTS},
+//                1);
+//
+//        // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+//        // app-defined int constant. The callback method gets the
+//        // result of the request.
+//      }
+//    } else {
+//      ActivityCompat.requestPermissions(this,
+//              new String[]{Manifest.permission.READ_SMS, Manifest.permission.READ_PHONE_STATE, Manifest.permission.SEND_SMS, Manifest.permission.BROADCAST_SMS,
+//                      Manifest.permission.PROCESS_OUTGOING_CALLS, Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_CONTACTS},
+//              1);
+    }
   }
 
   @Override
