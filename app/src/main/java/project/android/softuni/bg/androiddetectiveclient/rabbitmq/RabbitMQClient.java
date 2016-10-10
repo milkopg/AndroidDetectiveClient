@@ -9,6 +9,15 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.QueueingConsumer;
 import com.rabbitmq.client.AMQP.BasicProperties;
+import com.rabbitmq.client.ShutdownListener;
+import com.rabbitmq.client.ShutdownSignalException;
+
+import net.jodah.lyra.ConnectionOptions;
+import net.jodah.lyra.Connections;
+import net.jodah.lyra.config.Config;
+import net.jodah.lyra.config.RecoveryPolicy;
+import net.jodah.lyra.config.RetryPolicies;
+import net.jodah.lyra.util.Duration;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -21,6 +30,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
 import project.android.softuni.bg.androiddetectiveclient.broadcast.camera.CameraReceiver;
+import project.android.softuni.bg.androiddetectiveclient.util.BitmapUtil;
 import project.android.softuni.bg.androiddetectiveclient.util.Constants;
 import project.android.softuni.bg.androiddetectiveclient.util.DateUtil;
 import project.android.softuni.bg.androiddetectiveclient.util.GsonManager;
@@ -30,7 +40,7 @@ import project.android.softuni.bg.androiddetectiveclient.webapi.model.RequestObj
  * Created by Milko on 26.9.2016 г..
  */
 
-public class RabbitMQClient {
+public class RabbitMQClient implements ShutdownListener {
 
   private static final String TAG = RabbitMQClient.class.getSimpleName();
   private Connection connection;
@@ -40,14 +50,17 @@ public class RabbitMQClient {
   private QueueingConsumer consumer;
   private static RabbitMQClient instance;
 
-  public RabbitMQClient(){
+  public RabbitMQClient() {
     ConnectionFactory factory = new ConnectionFactory();
 
     try {
       factory.setAutomaticRecoveryEnabled(true);
       factory.setUri(Constants.RABBIT_MQ_API_URL);
+      factory.setAutomaticRecoveryEnabled(true);
+      factory.setTopologyRecoveryEnabled(true);
 
       connection = factory.newConnection();
+      //connection = createConnection(factory);
       channel = connection.createChannel();
 
       replyQueueName = channel.queueDeclare().getQueue();
@@ -65,6 +78,7 @@ public class RabbitMQClient {
       Log.e(TAG, "URISyntaxException: " + e);
     }
   }
+
   public static RabbitMQClient getInstance() {
     if (instance == null)
       try {
@@ -75,9 +89,30 @@ public class RabbitMQClient {
     return instance;
   }
 
+  public static Connection createConnection(ConnectionFactory factory) {
+    Config config = new Config()
+            .withRetryPolicy(RetryPolicies.retryAlways())
+            .withRecoveryPolicy(new RecoveryPolicy()
+                    .withMaxDuration(Duration.minutes(60))
+                    .withBackoff(Duration.seconds(1), Duration.seconds(5)));
+
+    ConnectionOptions options = new ConnectionOptions()
+            .withConnectionFactory(factory);
+
+    try {
+      Connection connection = Connections.create(options, config);
+      return connection;
+    } catch (Exception e) {
+      e.printStackTrace();
+      Log.e(TAG, "TimeoutException: " + e);
+    }
+    return null;
+  }
+
 
   /**
    * Send regular json
+   *
    * @param message - should be in Json Format
    * @throws Exception
    */
@@ -97,9 +132,9 @@ public class RabbitMQClient {
     while (true) {
       QueueingConsumer.Delivery delivery = consumer.nextDelivery();
       if (delivery.getProperties().getCorrelationId().equals(corrId)) {
-          response = new String(delivery.getBody(), "UTF-8");
-          Log.d(TAG, "Send message confirmed: " + response);
-          break;
+        response = new String(delivery.getBody(), "UTF-8");
+        Log.d(TAG, "Send message confirmed: " + response);
+        break;
       }
     }
   }
@@ -111,11 +146,13 @@ public class RabbitMQClient {
 
   /**
    * RabbitMQClient Send images
+   *
    * @param message - raw image byte array
    */
   public void sendMessage(byte[] message) {
     String corrId = UUID.randomUUID().toString();
-    String encodedGson = GsonManager.customGson.toJson(message);
+    byte[] compressedMessage = BitmapUtil.compressImage(message);
+    String encodedGson = GsonManager.customGson.toJson(compressedMessage);
 
     BasicProperties props = new BasicProperties
             .Builder()
@@ -131,16 +168,21 @@ public class RabbitMQClient {
       while (true) {
         QueueingConsumer.Delivery delivery = null;
 
-          delivery = consumer.nextDelivery();
-          if (delivery.getProperties().getCorrelationId().equals(corrId)) {
-            Log.d(TAG, "Message Delivered and recognized");
-            break;
-          }
+        delivery = consumer.nextDelivery();
+        if (delivery.getProperties().getCorrelationId().equals(corrId)) {
+          Log.d(TAG, "Message Delivered and recognized");
+          break;
+        }
       }
     } catch (IOException e) {
       Log.e(TAG, "sendMessage: IOException" + e);
     } catch (InterruptedException e) {
       Log.e(TAG, "sendMessage: byte []" + e);
     }
+  }
+
+  @Override
+  public void shutdownCompleted(ShutdownSignalException cause) {
+
   }
 }

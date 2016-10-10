@@ -55,6 +55,7 @@ public class MainActivity extends AppCompatActivity implements IServiceCommunica
     mServiceIntent.putExtra(Constants.RECEIVER, mReceiver);
     startService(mServiceIntent);
 
+
     bindService(mServiceIntent, mConnection, Context.BIND_AUTO_CREATE);
 
     if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED
@@ -97,10 +98,9 @@ public class MainActivity extends AppCompatActivity implements IServiceCommunica
 
   @Override
   protected void onDestroy() {
-//    if (mConnection != null)
-//      unbindService(mConnection);
+    if (mConnection != null)
+      unbindService(mConnection);
     super.onDestroy();
-
   }
 
   @Override
