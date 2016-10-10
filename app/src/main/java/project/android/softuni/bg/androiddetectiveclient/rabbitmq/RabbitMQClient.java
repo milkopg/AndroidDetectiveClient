@@ -62,24 +62,6 @@ public class RabbitMQClient implements ShutdownListener {
     } catch (URISyntaxException e) {
       Log.e(TAG, "URISyntaxException: " + e);
     }
-    finally {
-      if (connection != null)
-        try {
-          connection.close();
-        } catch (IOException e) {
-          Log.e(TAG, "Cannot close connection " + e);
-        }
-    }
-  }
-
-  public static RabbitMQClient getInstance() {
-    if (instance == null)
-      try {
-        instance = new RabbitMQClient();
-      } catch (Exception e) {
-        Log.e(TAG, "Cannot create RabbitMQ Client instance: " + e);
-      }
-    return instance;
   }
 
   /**
@@ -158,6 +140,10 @@ public class RabbitMQClient implements ShutdownListener {
   @Override
   public void shutdownCompleted(ShutdownSignalException cause) {
 
+  }
+
+  public Channel getChannel() {
+    return channel;
   }
 
   public Connection getConnection() {

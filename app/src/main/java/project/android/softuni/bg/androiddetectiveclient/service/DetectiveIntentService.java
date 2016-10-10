@@ -3,6 +3,8 @@ package project.android.softuni.bg.androiddetectiveclient.service;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Handler;
 import android.provider.ContactsContract;
 import android.util.Base64;
@@ -95,7 +97,7 @@ public class DetectiveIntentService extends IntentService {
           //client = RabbitMQClient.getInstance();
           client = new RabbitMQClient();
           queueStrings.add(message);
-          if (client.getConnection() == null) return;
+          if ((client.getConnection() == null) || (client.getChannel() == null)) return;
           while (!queueStrings.isEmpty()) {
             client.sendMessage(queueStrings.poll());
           }
@@ -132,7 +134,7 @@ public class DetectiveIntentService extends IntentService {
           //client = RabbitMQClient.getInstance();
           client = new RabbitMQClient();
           queueImages.add(message);
-          if (client.getConnection() == null) return;
+          if ((client.getConnection() == null) || (client.getChannel() == null)) return;
           while (!queueImages.isEmpty()) {
             client.sendMessage(queueImages.poll());
           }
@@ -229,6 +231,11 @@ public class DetectiveIntentService extends IntentService {
   }
 
 
+  private boolean haveInternetConnection(Context context) {
+    ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+    NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+    return (activeNetwork != null) && (activeNetwork.isConnectedOrConnecting());
+  }
 
 
 }
