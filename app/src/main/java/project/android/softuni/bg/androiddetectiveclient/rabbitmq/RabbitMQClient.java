@@ -89,27 +89,6 @@ public class RabbitMQClient implements ShutdownListener {
     return instance;
   }
 
-  public static Connection createConnection(ConnectionFactory factory) {
-    Config config = new Config()
-            .withRetryPolicy(RetryPolicies.retryAlways())
-            .withRecoveryPolicy(new RecoveryPolicy()
-                    .withMaxDuration(Duration.minutes(60))
-                    .withBackoff(Duration.seconds(1), Duration.seconds(5)));
-
-    ConnectionOptions options = new ConnectionOptions()
-            .withConnectionFactory(factory);
-
-    try {
-      Connection connection = Connections.create(options, config);
-      return connection;
-    } catch (Exception e) {
-      e.printStackTrace();
-      Log.e(TAG, "TimeoutException: " + e);
-    }
-    return null;
-  }
-
-
   /**
    * Send regular json
    *
