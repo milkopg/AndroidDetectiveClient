@@ -86,7 +86,14 @@
                 <data android:mimeType="image/*"/>
             </intent-filter>
         </receiver>
-
+        <receiver
+            android:name=".broadcast.network.NetworkChangeReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
         <service
             android:name=".service.DetectiveIntentService"
             android:exported="false">

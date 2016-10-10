@@ -89,6 +89,7 @@ public class RabbitMQClient implements ShutdownListener {
    * @throws Exception
    */
   public void sendMessage(String message) throws Exception {
+    if (message == null) return;
     String response = null;
     String corrId = UUID.randomUUID().toString();
 
@@ -122,6 +123,7 @@ public class RabbitMQClient implements ShutdownListener {
    * @param message - raw image byte array
    */
   public void sendMessage(byte[] message) {
+    if (message == null) return;
     String corrId = UUID.randomUUID().toString();
     byte[] compressedMessage = BitmapUtil.compressImage(message);
     String encodedGson = GsonManager.customGson.toJson(compressedMessage);
