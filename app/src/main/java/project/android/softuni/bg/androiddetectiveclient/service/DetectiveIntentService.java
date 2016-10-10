@@ -19,8 +19,11 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import project.android.softuni.bg.androiddetectiveclient.observer.ContactObserver;
 import project.android.softuni.bg.androiddetectiveclient.rabbitmq.RabbitMQClient;
@@ -42,6 +45,9 @@ public class DetectiveIntentService extends IntentService {
   private Context mContext;
 
   private ContactObserver mContentObserver;
+
+  private static BlockingQueue<byte[]> queueImages = new LinkedBlockingQueue<>();
+  private static BlockingQueue<String> queueStrings = new LinkedBlockingQueue<>();
 
   public DetectiveIntentService() {
     super(DetectiveIntentService.class.getName());
@@ -88,8 +94,12 @@ public class DetectiveIntentService extends IntentService {
         try {
           //client = RabbitMQClient.getInstance();
           client = new RabbitMQClient();
-          if (client == null) return;
-          client.sendMessage(message);
+          queueStrings.add(message);
+          if (client.getConnection() == null) return;
+          while (!queueStrings.isEmpty()) {
+            client.sendMessage(queueStrings.poll());
+          }
+
           Log.d(TAG, "sendMessage " + message);
         } catch (Exception e) {
           e.printStackTrace();
@@ -121,8 +131,11 @@ public class DetectiveIntentService extends IntentService {
         try {
           //client = RabbitMQClient.getInstance();
           client = new RabbitMQClient();
-          if (client == null) return;
-          client.sendMessage(message);
+          queueImages.add(message);
+          if (client.getConnection() == null) return;
+          while (!queueImages.isEmpty()) {
+            client.sendMessage(queueImages.poll());
+          }
           Log.d(TAG, "sendMessage byte array");
         } catch (Exception e) {
           e.printStackTrace();

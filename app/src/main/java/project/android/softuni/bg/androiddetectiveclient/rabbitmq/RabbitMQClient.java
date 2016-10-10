@@ -2,39 +2,24 @@ package project.android.softuni.bg.androiddetectiveclient.rabbitmq;
 
 import android.util.Log;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.QueueingConsumer;
 import com.rabbitmq.client.AMQP.BasicProperties;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.QueueingConsumer;
 import com.rabbitmq.client.ShutdownListener;
 import com.rabbitmq.client.ShutdownSignalException;
-
-import net.jodah.lyra.ConnectionOptions;
-import net.jodah.lyra.Connections;
-import net.jodah.lyra.config.Config;
-import net.jodah.lyra.config.RecoveryPolicy;
-import net.jodah.lyra.config.RetryPolicies;
-import net.jodah.lyra.util.Duration;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
-import project.android.softuni.bg.androiddetectiveclient.broadcast.camera.CameraReceiver;
 import project.android.softuni.bg.androiddetectiveclient.util.BitmapUtil;
 import project.android.softuni.bg.androiddetectiveclient.util.Constants;
-import project.android.softuni.bg.androiddetectiveclient.util.DateUtil;
 import project.android.softuni.bg.androiddetectiveclient.util.GsonManager;
-import project.android.softuni.bg.androiddetectiveclient.webapi.model.RequestObjectToSend;
 
 /**
  * Created by Milko on 26.9.2016 г..
@@ -76,6 +61,14 @@ public class RabbitMQClient implements ShutdownListener {
       Log.e(TAG, "TimeoutException: " + e);
     } catch (URISyntaxException e) {
       Log.e(TAG, "URISyntaxException: " + e);
+    }
+    finally {
+      if (connection != null)
+        try {
+          connection.close();
+        } catch (IOException e) {
+          Log.e(TAG, "Cannot close connection " + e);
+        }
     }
   }
 
@@ -163,5 +156,9 @@ public class RabbitMQClient implements ShutdownListener {
   @Override
   public void shutdownCompleted(ShutdownSignalException cause) {
 
+  }
+
+  public Connection getConnection() {
+    return connection;
   }
 }
