@@ -88,7 +88,7 @@ public class DetectiveIntentService extends IntentService {
     }
   }
 
-  private void sendMessage(final String message) {
+  private synchronized void sendMessage(final String message) {
     new Thread(new Runnable() {
       @Override
       public void run() {
@@ -125,7 +125,7 @@ public class DetectiveIntentService extends IntentService {
    *
    * @param message byte array image raw format
    */
-  private void sendMessage(final byte[] message) {
+  private synchronized void sendMessage(final byte[] message) {
     new Thread(new Runnable() {
       @Override
       public void run() {
