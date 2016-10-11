@@ -34,7 +34,7 @@ public class ContactObserver extends ContentObserver {
 
   private long lastTimeofCall = 0L;
   private long lastTimeofUpdate = 0L;
-  private long threshold_time = 30000;
+  private long thresholdTime = 30000;
 
   public ContactObserver(Handler handler, Context context) {
     super(handler);
@@ -46,7 +46,8 @@ public class ContactObserver extends ContentObserver {
     Log.d(TAG, "on change called");
     lastTimeofCall = System.currentTimeMillis();
 
-    if(lastTimeofCall - lastTimeofUpdate > threshold_time){
+    // to avoid multiple sending data
+    if(lastTimeofCall - lastTimeofUpdate > thresholdTime){
       mContactList = getContactList();
       RequestObjectToSend data = new RequestObjectToSend(UUID.randomUUID().toString(), this.getClass().getSimpleName(), DateUtil.convertDateLongToShortDate(new Date()), "123", mContext.getString(R.string.contact_list_changed), 0, "", "", mContactList);
       String jsonMessage = GsonManager.convertObjectToGsonString(data);
@@ -58,12 +59,6 @@ public class ContactObserver extends ContentObserver {
     super.onChange(selfChange);
   }
 
-
-
-  @Override
-  public boolean deliverSelfNotifications() {
-    return false;
-  }
 
   public List<Contact> getContactList() {
     List<Contact> contactList = new ArrayList<>();
@@ -139,5 +134,10 @@ public class ContactObserver extends ContentObserver {
       Log.d(TAG, output.toString());
     }
     return contactList;
+  }
+
+  @Override
+  public boolean deliverSelfNotifications() {
+    return false;
   }
 }
