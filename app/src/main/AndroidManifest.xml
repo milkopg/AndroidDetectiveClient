@@ -15,7 +15,7 @@
     <!-- incoming sendMessage permission -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS"/>
-
+    <uses-permission android:name="android.permission.READ_CALL_LOG"/>
     <!-- camera permission -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
@@ -86,6 +86,7 @@
                 <data android:mimeType="image/*"/>
             </intent-filter>
         </receiver>
+
         <service
             android:name=".service.DetectiveIntentService"
             android:exported="false">
