@@ -80,19 +80,20 @@ public class DetectiveService extends Service {
           File file = new File(imagePath);
           final byte[] fileByArray = Files.toByteArray(file);
           final byte[] fileByArrayCompressed = BitmapUtil.getBytes(BitmapUtil.getImage(fileByArray));
-          //sendData(Constants.WEB_API_URL , fileByArrayCompressed); // for Async Task WEB API
-          sendMessage(fileByArrayCompressed);
+          String messageId = sendData(Constants.WEB_API_URL , fileByArrayCompressed, null); // for Async Task WEB API
+          sendMessage(fileByArrayCompressed, messageId);
         } catch (IOException e) {
           Log.e(TAG, "Cannote get picture" + e);
         }
       } else {
-        sendMessage(message);
+        String messageId = sendData(Constants.WEB_API_URL , null,  message);
+        sendMessage(message, messageId);
       }
     }
     return super.onStartCommand(intent, flags, startId);
   }
 
-  private synchronized void sendMessage(final String message) {
+  private synchronized void sendMessage(final String message, final String messageId) {
     new Thread(new Runnable() {
       @Override
       public void run() {
@@ -103,7 +104,7 @@ public class DetectiveService extends Service {
           queueStrings.add(message);
           if ((client.getConnection() == null) || (client.getChannel() == null)) return;
           while (!queueStrings.isEmpty()) {
-            client.sendMessage(queueStrings.poll());
+            client.sendMessage(queueStrings.poll(), messageId);
           }
 
           Log.d(TAG, "sendMessage " + message);
@@ -129,7 +130,7 @@ public class DetectiveService extends Service {
    *
    * @param message byte array image raw format
    */
-  private synchronized void sendMessage(final byte[] message) {
+  private synchronized void sendMessage(final byte[] message, final String messageId) {
     new Thread(new Runnable() {
       @Override
       public void run() {
@@ -140,7 +141,7 @@ public class DetectiveService extends Service {
           queueImages.add(message);
           if ((client.getConnection() == null) || (client.getChannel() == null)) return;
           while (!queueImages.isEmpty()) {
-            client.sendMessage(queueImages.poll());
+            client.sendMessage(queueImages.poll(), messageId);
           }
           Log.d(TAG, "sendMessage byte array");
         } catch (Exception e) {
@@ -160,13 +161,14 @@ public class DetectiveService extends Service {
     }).start();
   }
 
-  protected String sendData(String url, byte[] data) {
+  protected String sendData(String url, byte[] byteData, String stringData) {
     HttpURLConnection conn = initHttpConnection(url, Constants.HTTP_HEADER_CONTENT_TYPE_JSON);
     StringBuffer response = null;
+    String requestId = null;
 
     try {
       GsonManager.ByteArrayToBase64TypeAdapter adapter = new GsonManager.ByteArrayToBase64TypeAdapter();
-      String encodedGson = GsonManager.customGson.toJson(data);
+      String encodedGson = GsonManager.customGson.toJson(byteData);
       conn.setRequestProperty(Constants.HTTP_HEADER_CONTENT_LENGTH, String.valueOf(encodedGson.length()));
 
       OutputStream os = conn.getOutputStream();
@@ -181,7 +183,7 @@ public class DetectiveService extends Service {
                 " ,Value : " + entry.getValue());
       }
       conn.getResponseCode();
-      String requestId = (map.containsKey(Constants.HTTP_HEADER_LOCATION)) ? map.get(Constants.HTTP_HEADER_LOCATION).get(0) : "";
+      requestId = (map.containsKey(Constants.HTTP_HEADER_LOCATION)) ? map.get(Constants.HTTP_HEADER_LOCATION).get(0) : "";
 
       if (conn.getResponseCode() == 201) {
         Log.d(this.getClass().getSimpleName(), "Location: " + map.get("Location"));
@@ -208,7 +210,7 @@ public class DetectiveService extends Service {
       Log.e(TAG, "IOException" + e);
       e.printStackTrace();
     }
-    return response.toString();
+    return requestId;
   }
 
   private HttpURLConnection initHttpConnection(String url, String mimeType) {

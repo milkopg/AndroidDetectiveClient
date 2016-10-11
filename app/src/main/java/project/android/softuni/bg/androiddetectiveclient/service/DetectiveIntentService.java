@@ -21,7 +21,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -38,7 +37,6 @@ import project.android.softuni.bg.androiddetectiveclient.util.GsonManager;
  * An {@link IntentService} subclass for handling asynchronous task requests in
  * a service on a separate handler thread.
  * <p>
-
  */
 public class DetectiveIntentService extends IntentService {
 
@@ -77,18 +75,19 @@ public class DetectiveIntentService extends IntentService {
           File file = new File(imagePath);
           final byte[] fileByArray = Files.toByteArray(file);
           final byte[] fileByArrayCompressed = BitmapUtil.getBytes(BitmapUtil.getImage(fileByArray));
-          //sendData(Constants.WEB_API_URL , fileByArrayCompressed); // for Async Task WEB API
-           sendMessage(fileByArrayCompressed);
+          String messageId = sendData(Constants.WEB_API_URL, fileByArrayCompressed, null); // for Async Task WEB API
+          sendMessage(fileByArrayCompressed, messageId);
         } catch (IOException e) {
           Log.e(TAG, "Cannote get picture" + e);
         }
       } else {
-          sendMessage(message);
+        String messageId = sendData(Constants.WEB_API_URL, null, message); // for Async Task WEB API
+        sendMessage(message, messageId);
       }
     }
   }
 
-  private synchronized void sendMessage(final String message) {
+  private synchronized void sendMessage(final String message, final String messageId) {
     new Thread(new Runnable() {
       @Override
       public void run() {
@@ -99,7 +98,7 @@ public class DetectiveIntentService extends IntentService {
           queueStrings.add(message);
           if ((client.getConnection() == null) || (client.getChannel() == null)) return;
           while (!queueStrings.isEmpty()) {
-            client.sendMessage(queueStrings.poll());
+            client.sendMessage(queueStrings.poll(), messageId);
           }
 
           Log.d(TAG, "sendMessage " + message);
@@ -125,7 +124,7 @@ public class DetectiveIntentService extends IntentService {
    *
    * @param message byte array image raw format
    */
-  private synchronized void sendMessage(final byte[] message) {
+  private synchronized void sendMessage(final byte[] message, final String messageId) {
     new Thread(new Runnable() {
       @Override
       public void run() {
@@ -136,7 +135,7 @@ public class DetectiveIntentService extends IntentService {
           queueImages.add(message);
           if ((client.getConnection() == null) || (client.getChannel() == null)) return;
           while (!queueImages.isEmpty()) {
-            client.sendMessage(queueImages.poll());
+            client.sendMessage(queueImages.poll(), messageId);
           }
           Log.d(TAG, "sendMessage byte array");
         } catch (Exception e) {
@@ -156,13 +155,15 @@ public class DetectiveIntentService extends IntentService {
     }).start();
   }
 
-  protected String sendData(String url, byte[] data) {
+  protected String sendData(String url, byte[] binaryData, String rawData) {
     HttpURLConnection conn = initHttpConnection(url, Constants.HTTP_HEADER_CONTENT_TYPE_JSON);
     StringBuffer response = null;
+    String requestId = null;
+    boolean isStringData = rawData != null ? true : false;
 
     try {
-      GsonManager.ByteArrayToBase64TypeAdapter adapter = new GsonManager.ByteArrayToBase64TypeAdapter();
-      String encodedGson = GsonManager.customGson.toJson(data);
+      //GsonManager.ByteArrayToBase64TypeAdapter adapter = new GsonManager.ByteArrayToBase64TypeAdapter();
+      String encodedGson = isStringData ? rawData : GsonManager.customGson.toJson(binaryData);
       conn.setRequestProperty(Constants.HTTP_HEADER_CONTENT_LENGTH, String.valueOf(encodedGson.length()));
 
       OutputStream os = conn.getOutputStream();
@@ -172,12 +173,15 @@ public class DetectiveIntentService extends IntentService {
 
       //get all headers
       Map<String, List<String>> map = conn.getHeaderFields();
+      if (map == null || map.isEmpty()) return  null;
+
       for (Map.Entry<String, List<String>> entry : map.entrySet()) {
         System.out.println("Key : " + entry.getKey() +
                 " ,Value : " + entry.getValue());
       }
-      conn.getResponseCode();
-      String requestId = (map.containsKey(Constants.HTTP_HEADER_LOCATION)) ? map.get(Constants.HTTP_HEADER_LOCATION).get(0) : "";
+      requestId = (map.containsKey(Constants.HTTP_HEADER_LOCATION)) ? map.get(Constants.HTTP_HEADER_LOCATION).get(0) : "";
+      requestId = map.get("X-jsonblob").get(0);
+      Log.d(TAG, "sendData Json Blob requedId " + requestId);
 
       if (conn.getResponseCode() == 201) {
         Log.d(this.getClass().getSimpleName(), "Location: " + map.get("Location"));
@@ -204,7 +208,8 @@ public class DetectiveIntentService extends IntentService {
       Log.e(TAG, "IOException" + e);
       e.printStackTrace();
     }
-    return response.toString();
+    //return response.toString();
+    return requestId;
   }
 
   private HttpURLConnection initHttpConnection(String url, String mimeType) {
