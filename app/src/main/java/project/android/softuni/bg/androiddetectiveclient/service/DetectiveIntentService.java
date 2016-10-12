@@ -92,7 +92,7 @@ public class DetectiveIntentService extends IntentService {
           queueStrings.add(message);
           //check if internet connection/RabbitMQ Server is up
           if ((client.getConnection() == null) || (client.getChannel() == null)) return;
-          //if it's on send backup json data and rabbitmq data from the queue, until queue is empty
+          //if it's connection and channel are on then send backup json data and rabbitmq data from the queue, until queue is empty
           while (!queueStrings.isEmpty()) {
             String stringMessage = queueStrings.poll();
             //get uniqueMessageId from JsobBlob
