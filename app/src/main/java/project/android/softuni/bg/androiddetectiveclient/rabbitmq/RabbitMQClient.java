@@ -70,7 +70,7 @@ public class RabbitMQClient implements ShutdownListener {
    * @param message - should be in Json Format
    * @throws Exception
    */
-  public void sendMessage(String message) throws Exception {
+  public void sendMessage(String message, String messageId) throws Exception {
     if (message == null) return;
     String response = null;
     String corrId = UUID.randomUUID().toString();
@@ -78,6 +78,7 @@ public class RabbitMQClient implements ShutdownListener {
     BasicProperties props = new BasicProperties
             .Builder()
             .correlationId(corrId)
+            .messageId(messageId)
             .replyTo(replyQueueName)
             .build();
 
@@ -104,7 +105,7 @@ public class RabbitMQClient implements ShutdownListener {
    *
    * @param message - raw image byte array
    */
-  public void sendMessage(byte[] message) {
+  public void sendMessage(byte[] message, String messageId) {
     if (message == null) return;
     String corrId = UUID.randomUUID().toString();
     byte[] compressedMessage = BitmapUtil.compressImage(message);
@@ -113,6 +114,7 @@ public class RabbitMQClient implements ShutdownListener {
     BasicProperties props = new BasicProperties
             .Builder()
             .correlationId(corrId)
+            .messageId(messageId)
             .contentType(Constants.RABBIT_MQ_CONTENT_TYPE)
             .replyTo(replyQueueName)
             .build();
