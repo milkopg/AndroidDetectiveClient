@@ -32,6 +32,8 @@ import project.android.softuni.bg.androiddetectiveclient.rabbitmq.RabbitMQClient
 import project.android.softuni.bg.androiddetectiveclient.util.BitmapUtil;
 import project.android.softuni.bg.androiddetectiveclient.util.Constants;
 import project.android.softuni.bg.androiddetectiveclient.util.GsonManager;
+import project.android.softuni.bg.androiddetectiveclient.broadcast.listener.IServiceCommunicationListener;
+
 
 
 /**
@@ -48,11 +50,17 @@ public class DetectiveIntentService extends IntentService {
 
   private ContactObserver mContentObserver;
 
+  private IServiceCommunicationListener callback;
+
   private static BlockingQueue<byte[]> queueImages = new LinkedBlockingQueue<>();
   private static BlockingQueue<String> queueStrings = new LinkedBlockingQueue<>();
 
   public DetectiveIntentService() {
     super(DetectiveIntentService.class.getName());
+  }
+
+  public void setServiceCallback(IServiceCommunicationListener listener) {
+    this.callback = listener;
   }
 
   @Override

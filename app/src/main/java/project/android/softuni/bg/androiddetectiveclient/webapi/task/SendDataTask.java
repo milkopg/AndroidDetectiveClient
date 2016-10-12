@@ -30,7 +30,8 @@ import project.android.softuni.bg.androiddetectiveclient.webapi.model.Response;
  */
 
 public class SendDataTask extends AsyncTask <String, String, String>{
-   private String data;
+  private static final String TAG = SendDataTask.class.getSimpleName();
+  private String data;
    private byte [] binaryData;
    private ConcurrentHashMap<String, ObjectBase> dataMap;
    private String requestId;
@@ -47,8 +48,7 @@ public class SendDataTask extends AsyncTask <String, String, String>{
 
     String rawData = data;
     byte [] binaryData = this.binaryData;
-    boolean isStringData = data != null ? true : false;
-    int dataLength = isStringData ? rawData.length() : binaryData.length;
+    int dataLength = isStringData() ? rawData.length() : binaryData.length;
     try {
       URL u = null;
       String url = voids != null && voids.length > 0 ? voids[0] : Constants.WEB_API_URL;
@@ -66,7 +66,7 @@ public class SendDataTask extends AsyncTask <String, String, String>{
       OutputStream os = conn.getOutputStream();
 
 
-      os.write(isStringData ? rawData.getBytes() : binaryData);
+      os.write(isStringData() ? rawData.getBytes() : binaryData);
       os.close();
       conn.connect();
 
@@ -93,11 +93,11 @@ public class SendDataTask extends AsyncTask <String, String, String>{
       Log.i("INFO2", response.toString());
 
     } catch (MalformedURLException e) {
-      e.printStackTrace();
+      Log.e(TAG, "MalformedURLException " + e);
     } catch (ProtocolException e) {
-      e.printStackTrace();
+      Log.e(TAG, "ProtocolException " + e);
     } catch (IOException e) {
-      Log.e("SendDataTask", e.getLocalizedMessage());
+      Log.e(TAG, "IOException " + e);
       e.printStackTrace();
     }
 
@@ -113,6 +113,10 @@ public class SendDataTask extends AsyncTask <String, String, String>{
     } catch (UnsupportedEncodingException e) {
       e.printStackTrace();
     }
+  }
+
+  private boolean isStringData() {
+    return data != null ? true : false;
   }
 
   @Override
