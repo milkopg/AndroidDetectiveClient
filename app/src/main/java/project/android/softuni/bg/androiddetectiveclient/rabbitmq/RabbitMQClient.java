@@ -45,7 +45,6 @@ public class RabbitMQClient implements ShutdownListener {
       factory.setTopologyRecoveryEnabled(true);
 
       connection = factory.newConnection();
-      //connection = createConnection(factory);
       channel = connection.createChannel();
 
       replyQueueName = channel.queueDeclare().getQueue();
@@ -141,7 +140,7 @@ public class RabbitMQClient implements ShutdownListener {
 
   @Override
   public void shutdownCompleted(ShutdownSignalException cause) {
-
+    Log.d(TAG, "shutdownCompleted: " + cause);
   }
 
   public Channel getChannel() {
