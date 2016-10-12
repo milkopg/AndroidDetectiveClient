@@ -15,7 +15,6 @@ import com.google.gson.JsonSerializer;
 import com.google.gson.JsonSyntaxException;
 
 import java.lang.reflect.Type;
-import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 
 import project.android.softuni.bg.androiddetectiveclient.webapi.model.ObjectBase;
@@ -43,7 +42,7 @@ public class GsonManager {
     try {
       data = gson.fromJson(json, ObjectBase.class);
     } catch (JsonSyntaxException e) {
-      Log.e(TAG, "convertGsonStringToObject: " + e.getLocalizedMessage());
+      Log.e(TAG, "convertGsonStringToObject: " + e);
     }
     return data;
   }
@@ -58,10 +57,6 @@ public class GsonManager {
     }
     return objectMap;
   }
-
-//  public static final Gson customGson = new GsonBuilder().registerTypeHierarchyAdapter(byte[].class,
-//          new ByteArrayToBase64TypeAdapter()).create();
-
 
   public static final Gson customGson = new GsonBuilder()
           .registerTypeAdapter(Byte.class, new JsonDeserializer<Byte>() {

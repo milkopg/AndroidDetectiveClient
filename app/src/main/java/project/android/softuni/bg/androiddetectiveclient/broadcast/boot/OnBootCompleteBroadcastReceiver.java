@@ -1,18 +1,13 @@
 package project.android.softuni.bg.androiddetectiveclient.broadcast.boot;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.widget.Toast;
 
-import project.android.softuni.bg.androiddetectiveclient.MainActivity;
-import project.android.softuni.bg.androiddetectiveclient.broadcast.listener.IServiceCommunicationListener;
 import project.android.softuni.bg.androiddetectiveclient.service.DetectiveIntentService;
-import project.android.softuni.bg.androiddetectiveclient.service.DetectiveService;
-import project.android.softuni.bg.androiddetectiveclient.util.ServiceConnectionManager;
 
-public class OnBootCompleteBroadcastReceiver extends WakefulBroadcastReceiver implements IServiceCommunicationListener{
+public class OnBootCompleteBroadcastReceiver extends WakefulBroadcastReceiver{
 
   @Override
   public void onReceive(Context context, Intent intent) {
@@ -24,10 +19,4 @@ public class OnBootCompleteBroadcastReceiver extends WakefulBroadcastReceiver im
       //startWakefulService(context, service);
    }
   }
-
-  @Override
-  public void sendJsonData(String json) {
-
-  }
-
 }

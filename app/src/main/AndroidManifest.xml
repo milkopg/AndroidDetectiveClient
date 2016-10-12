@@ -37,12 +37,6 @@
             </intent-filter>
         </activity>
 
-        <service
-            android:name=".service.DetectiveService"
-            android:enabled="true"
-            android:exported="true">
-        </service>
-
         <receiver
             android:name=".broadcast.sms.SmsReceivedBroadcastReceiver"
             android:exported="true"

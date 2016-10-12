@@ -27,13 +27,11 @@ public class CameraReceiver extends BroadcastReceiver {
 
   @Override
   public void onReceive(Context context, Intent intent) {
-    //
     Toast.makeText(context, "New Photo Clicked + " + intent.getDataString(), Toast.LENGTH_LONG).show();
 
     Cursor cursor = context.getContentResolver().query(intent.getData(), null, null, null, null);
     if (cursor == null) return;
     cursor.moveToFirst();
-    //byte [] fileByArray ;
     String imagePath = null;
     imagePath = cursor.getString(cursor.getColumnIndex("_data"));
 
