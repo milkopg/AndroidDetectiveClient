@@ -21,19 +21,15 @@ public class Constants {
   public static final String HTTP_HEADER_LOCATION = "Location";
 
   public static final String HTTP_REQUEST_METHOD_POST = "POST";
-  public static final String HTTP_REQUEST_METHOD_GET = "GET";
 
   public static final String HTTP_HEADER_CONTENT_TYPE_JSON = "application/json";
   public static final String HTTP_HEADER_HOST_JSONBLOB = "jsonblob.com";
+  public static final String JSON_BLOB_HEADER_MESSAGE_ID = "X-jsonblob";
 
-  public static final String INTENT_INCOMING_NUMBER = "incoming_number";
   public static final String INTENT_STATE = "state";
 
   public static final String INTENT_PHONE_STATE = "android.intent.action.PHONE_STATE";
   public static final String RECEIVER = "receiver";
-
-  public static final String INTENT_CONNECTIVITY = "connectivity";
-  public static final String INTENT_INTERNET = "internet";
 
   public static final String DATE_FORMAT_SHORT_DATE_TIME = "yyyy-MM-dd HH:mm";
 }

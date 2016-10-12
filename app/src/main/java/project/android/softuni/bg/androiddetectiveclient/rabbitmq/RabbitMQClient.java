@@ -78,6 +78,7 @@ public class RabbitMQClient implements ShutdownListener {
     BasicProperties props = new BasicProperties
             .Builder()
             .correlationId(corrId)
+            .messageId(messageId)
             .replyTo(replyQueueName)
             .build();
 
