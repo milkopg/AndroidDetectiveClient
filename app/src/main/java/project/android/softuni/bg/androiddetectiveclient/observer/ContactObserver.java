@@ -61,6 +61,7 @@ public class ContactObserver extends ContentObserver {
     }
 
     if(!objectsMap.isEmpty() && (mContactList.size() != objectsMap.get(Constants.RECEIVER_CONTACTS).intValue())){
+      objectsMap.put(Constants.RECEIVER_CONTACTS, mContactList.size());
       sendContactObserverData();
     }
     super.onChange(selfChange);

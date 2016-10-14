@@ -104,7 +104,6 @@ public class DetectiveIntentService extends IntentService {
           //if it's connection and channel are on then send backup json data and rabbitmq data from the queue, until queue is empty
           while (!queueStrings.isEmpty()) {
             String stringMessage = queueStrings.poll();
-            RequestObjectToSend object = GsonManager.convertGsonStringToObject(stringMessage);
             //get uniqueMessageId from JsobBlob
             String messageId = sendJsonBlobData(Constants.WEB_API_URL, null, stringMessage);
             client.sendMessage(stringMessage , messageId);
