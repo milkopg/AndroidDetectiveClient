@@ -31,33 +31,9 @@ public class GsonManager {
     return gson.toJson(data);
   }
 
-  public static String convertObjectMapToGsonString(ConcurrentHashMap<String, ObjectBase> objectBaseMap) {
-    Gson gson = new GsonBuilder().setDateFormat(Constants.DATE_FORMAT_SHORT_DATE_TIME).create();
-    return gson.toJson(objectBaseMap);
-  }
-
-  public static ObjectBase convertGsonStringToObject(String json) {
-    Gson gson = new GsonBuilder().setDateFormat(Constants.DATE_FORMAT_SHORT_DATE_TIME).create();
-    ObjectBase data = null;
-    try {
-      data = gson.fromJson(json, ObjectBase.class);
-    } catch (JsonSyntaxException e) {
-      Log.e(TAG, "convertGsonStringToObject: " + e);
-    }
-    return data;
-  }
-
-  public static ConcurrentHashMap<String, ObjectBase> convertGsonStringToObjectMap(String json) {
-    Gson gson = new GsonBuilder().setDateFormat(Constants.DATE_FORMAT_SHORT_DATE_TIME).create();
-    ConcurrentHashMap<String, ObjectBase> objectMap = new ConcurrentHashMap<>();
-    try {
-      objectMap = gson.fromJson(json, objectMap.getClass());
-    } catch (JsonSyntaxException e) {
-      Log.e(TAG, "convertGsonStringToObjectMap: " + e.getLocalizedMessage());
-    }
-    return objectMap;
-  }
-
+  /**
+   *  create customGsonAdapter for serializing Images like Base64 String. This is required for Sending data in JsonBlob
+   */
   public static final Gson customGson = new GsonBuilder()
           .registerTypeAdapter(Byte.class, new JsonDeserializer<Byte>() {
             @Override
@@ -68,11 +44,29 @@ public class GsonManager {
           .registerTypeHierarchyAdapter(byte[].class,
                   new ByteArrayToBase64TypeAdapter()).create();
 
+  /**
+   * Custom ByteArrayToBase64 Adapter, with serializer and deserializer methods
+   */
   public static class ByteArrayToBase64TypeAdapter implements JsonSerializer<byte[]>, JsonDeserializer<byte[]> {
+    /**
+     * Deseralize Json to byteArray
+     * @param json JsonElement in JsonFormat
+     * @param typeOfT
+     * @param context - JsonDeserializationContext
+     * @return byte array of deserialized JsonElement
+     * @throws JsonParseException
+     */
     public byte[] deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
       return Base64.decode(json.getAsString(), Base64.NO_WRAP);
     }
 
+    /**
+     * Serialized byteArray Json to JsonElement
+     * @param src - byteArray of deserialized Json
+     * @param typeOfSrc
+     * @param context - JsonSerializationContext
+     * @return serialized JsonElement
+     */
     public JsonElement serialize(byte[] src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(Base64.encodeToString(src, Base64.NO_WRAP));
     }

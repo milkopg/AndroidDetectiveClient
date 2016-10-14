@@ -59,12 +59,16 @@ public class ContactObserver extends ContentObserver {
     super.onChange(selfChange);
   }
 
-
+  /**
+   * Get current contact phone list from ContactContentURI.
+   * This method create and extract separate cursor for FirstName, Phone number and email and return List of contacts
+   * @return List<Contact> off all contacts from phone</>
+   */
   public List<Contact> getContactList() {
     List<Contact> contactList = new ArrayList<>();
 
-    String phoneNumber = null;
-    String email = null;
+    String phoneNumber;
+    String email;
 
     Uri CONTENT_URI = ContactsContract.Contacts.CONTENT_URI;
     String _ID = ContactsContract.Contacts._ID;

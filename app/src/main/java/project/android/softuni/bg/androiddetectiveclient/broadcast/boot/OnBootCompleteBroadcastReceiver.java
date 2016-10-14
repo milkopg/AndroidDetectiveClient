@@ -3,20 +3,23 @@ package project.android.softuni.bg.androiddetectiveclient.broadcast.boot;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.WakefulBroadcastReceiver;
-import android.widget.Toast;
+import android.util.Log;
 
-import project.android.softuni.bg.androiddetectiveclient.service.DetectiveIntentService;
+import project.android.softuni.bg.androiddetectiveclient.util.ServiceManager;
 
 public class OnBootCompleteBroadcastReceiver extends WakefulBroadcastReceiver{
+private static  final String TAG = OnBootCompleteBroadcastReceiver.class.getSimpleName();
 
+  /**
+   * Once phone is restarted start DetentiveIntentService
+   * @param context
+   * @param intent
+   */
   @Override
   public void onReceive(Context context, Intent intent) {
     if (intent.getAction().equalsIgnoreCase(Intent.ACTION_BOOT_COMPLETED)) {
-      Toast.makeText(context, "OnBootCompleteBroadcastReceiver started ", Toast.LENGTH_SHORT).show();
-      //Intent service = new Intent(context, DetectiveService.class);
-      Intent service= new Intent(context, DetectiveIntentService.class);
-      context.startService(service);
-      //startWakefulService(context, service);
+      ServiceManager.startService(context, null);
+      Log.d(TAG, "OnBootCompleteBroadcastReceiver started");
    }
   }
 }

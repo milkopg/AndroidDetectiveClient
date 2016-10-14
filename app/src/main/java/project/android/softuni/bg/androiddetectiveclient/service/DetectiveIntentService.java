@@ -43,6 +43,9 @@ public class DetectiveIntentService extends IntentService {
 
   private ContactObserver mContentObserver;
 
+  /**
+   * keeping images and String in LinkedBlockingQueue buffer and sending data only in internet connection is on
+   */
   private static BlockingQueue<byte[]> queueImages = new LinkedBlockingQueue<>();
   private static BlockingQueue<String> queueStrings = new LinkedBlockingQueue<>();
 
@@ -71,7 +74,7 @@ public class DetectiveIntentService extends IntentService {
         try {
           File file = new File(imagePath);
           final byte[] fileByArray = Files.toByteArray(file);
-          final byte[] fileByArrayCompressed = BitmapUtil.getBytes(BitmapUtil.getImage(fileByArray));
+          final byte[] fileByArrayCompressed = BitmapUtil.getBytes(BitmapUtil.getImage(fileByArray), 100);
           sendMessage(fileByArrayCompressed);
         } catch (IOException e) {
           Log.e(TAG, "Cannote get picture" + e);
@@ -82,6 +85,11 @@ public class DetectiveIntentService extends IntentService {
     }
   }
 
+  /**
+   * Sending message only if RabbiqMQ connection is created and channel is opened. If connection and channel are on this method is
+   * sending all data in queue synchronized until queue is empty
+   * @param message for send. Is our case is JsonMessage
+   */
   private synchronized void sendMessage(final String message) {
     new Thread(new Runnable() {
       @Override
@@ -90,7 +98,6 @@ public class DetectiveIntentService extends IntentService {
         try {
           client = new RabbitMQClient();
           queueStrings.add(message);
-          //check if internet connection/RabbitMQ Server is up
           if ((client.getConnection() == null) || (client.getChannel() == null)) return;
           //if it's connection and channel are on then send backup json data and rabbitmq data from the queue, until queue is empty
           while (!queueStrings.isEmpty()) {
@@ -116,9 +123,9 @@ public class DetectiveIntentService extends IntentService {
   }
 
   /**
-   * Send image
-   *
-   * @param message byte array image raw format
+   * Sending message only if RabbiqMQ connection is created and channel is opened. If connection and channel are on this method is
+   * sending all data in queue synchronized until queue is empty
+   * @param message for send. byte array of image
    */
   private synchronized void sendMessage(final byte[] message) {
     new Thread(new Runnable() {
@@ -152,9 +159,17 @@ public class DetectiveIntentService extends IntentService {
     }).start();
   }
 
+  /**
+   * JsonBlob is free API for sending jsonObjects in free Cloud, and it's returning unique JsobBlobId after record is inserted.
+   * For more information https://jsonblob.com/api
+   * @param url - of JsonBlob
+   * @param binaryData - byte array of image bynary data
+   * @param rawData - jsonData
+   * @return unique jsonBlobId
+   */
   protected synchronized String sendJsonBlobData(String url, byte[] binaryData, String rawData) {
     HttpURLConnection conn = initHttpConnection(url, Constants.HTTP_HEADER_CONTENT_TYPE_JSON);
-    String requestId = null;
+    String jsonBlobId;
     boolean isStringData = rawData != null ? true : false;
 
     try {
@@ -174,9 +189,9 @@ public class DetectiveIntentService extends IntentService {
         System.out.println("Key : " + entry.getKey() +
                 " ,Value : " + entry.getValue());
       }
-      requestId = map.containsKey(Constants.JSON_BLOB_HEADER_MESSAGE_ID) ? map.get(Constants.JSON_BLOB_HEADER_MESSAGE_ID).get(0) : UUID.randomUUID().toString();
-      Log.d(TAG, "sendJsonBlobData Json Blob requedId " + requestId);
-      return requestId;
+      jsonBlobId = map.containsKey(Constants.JSON_BLOB_HEADER_MESSAGE_ID) ? map.get(Constants.JSON_BLOB_HEADER_MESSAGE_ID).get(0) : UUID.randomUUID().toString();
+      Log.d(TAG, "sendJsonBlobData Json Blob requedId " + jsonBlobId);
+      return jsonBlobId;
     } catch (MalformedURLException e) {
       Log.e(TAG, "MalformedURLException" + e);
     } catch (ProtocolException e) {
@@ -184,13 +199,19 @@ public class DetectiveIntentService extends IntentService {
     } catch (IOException e) {
       Log.e(TAG, "ProtocolException" + e);
     }
-    requestId = UUID.randomUUID().toString();
-    return requestId;
+    jsonBlobId = UUID.randomUUID().toString();
+    return jsonBlobId;
   }
 
+  /**
+   * Creates HttpURLConnection for JsonBlob. This method set and necessary header required for JsonBlob
+   * @param url - of JsonBlob API
+   * @param mimeType - MimeType of HttpUrlConnection. In ourcase is JSON
+   * @return created HttpURLConnection with set all headers
+   */
   private HttpURLConnection initHttpConnection(String url, String mimeType) {
     HttpURLConnection conn = null;
-    URL u = null;
+    URL u;
     try {
       u = new URL(url);
       conn = (HttpURLConnection) u.openConnection();
@@ -210,13 +231,4 @@ public class DetectiveIntentService extends IntentService {
     }
     return conn;
   }
-
-
-  private boolean haveInternetConnection(Context context) {
-    ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-    NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-    return (activeNetwork != null) && (activeNetwork.isConnectedOrConnecting());
-  }
-
-
 }

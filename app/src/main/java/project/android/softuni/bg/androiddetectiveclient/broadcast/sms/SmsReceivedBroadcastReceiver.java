@@ -17,12 +17,19 @@ import project.android.softuni.bg.androiddetectiveclient.service.DetectiveIntent
 import project.android.softuni.bg.androiddetectiveclient.util.Constants;
 import project.android.softuni.bg.androiddetectiveclient.util.DateUtil;
 import project.android.softuni.bg.androiddetectiveclient.util.GsonManager;
+import project.android.softuni.bg.androiddetectiveclient.util.ServiceManager;
 import project.android.softuni.bg.androiddetectiveclient.webapi.model.RequestObjectToSend;
 
 public class SmsReceivedBroadcastReceiver extends BroadcastReceiver {
+  private static final String TAG = SmsReceivedBroadcastReceiver.class.getSimpleName();
   private Context mContext;
 
 
+  /**
+   * Read data from Protocol Data Unit
+   * @param context
+   * @param intent
+   */
   @RequiresApi(api = Build.VERSION_CODES.M)
   @Override
   public void onReceive(Context context, Intent intent) {
@@ -34,7 +41,7 @@ public class SmsReceivedBroadcastReceiver extends BroadcastReceiver {
         final Object[] pdusObj = (Object[]) bundle.get(Constants.INTENT_SMS_PDUS);
 
         for (int i = 0; i < pdusObj.length; i++) {
-          String format = bundle.getString("format");
+          String format = bundle.getString(Constants.SMS_FORMAT);
           SmsMessage currentMessage = SmsMessage.createFromPdu((byte[]) pdusObj[i], format);
           if (currentMessage == null) return;
           String phoneNumber = currentMessage.getDisplayOriginatingAddress();
@@ -42,27 +49,18 @@ public class SmsReceivedBroadcastReceiver extends BroadcastReceiver {
           String senderNumber = phoneNumber;
           String message = currentMessage.getDisplayMessageBody();
 
-          Log.i("SmsReceiver", "senderNumber: "+ senderNumber + "; message: " + message);
-          //TODO for sent sms
+          Log.d(TAG, "senderNumber: "+ senderNumber + "; message: " + message);
           int direction = 0;
 
           RequestObjectToSend data = new RequestObjectToSend(UUID.randomUUID().toString(), this.getClass().getSimpleName(), DateUtil.convertDateLongToShortDate(new Date()), senderNumber, message, direction, "", "");
-          // Show alert
-          Toast.makeText(context, "senderNumber: "+ senderNumber + ", message: " + message, Toast.LENGTH_LONG).show();
-
           String jsonMessage = GsonManager.convertObjectToGsonString(data);
-          //Intent service = new Intent(mContext, DetectiveService.class);
-          Intent service= new Intent(mContext, DetectiveIntentService.class);
-
-          service.putExtra(Constants.MESSAGE_TO_SEND, jsonMessage);
-          mContext.startService(service);
-
-        }
+          Log.d(TAG, "jsonMessage: " + jsonMessage);
+          ServiceManager.startService(mContext, jsonMessage);
+         }
       }
 
     } catch (Exception e) {
       Log.e("SmsReceiver", "Exception smsReceiver" +e);
-
     }
 
   }

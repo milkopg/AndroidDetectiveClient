@@ -20,6 +20,7 @@ import project.android.softuni.bg.androiddetectiveclient.service.DetectiveIntent
 import project.android.softuni.bg.androiddetectiveclient.util.Constants;
 import project.android.softuni.bg.androiddetectiveclient.util.DateUtil;
 import project.android.softuni.bg.androiddetectiveclient.util.GsonManager;
+import project.android.softuni.bg.androiddetectiveclient.util.ServiceManager;
 import project.android.softuni.bg.androiddetectiveclient.webapi.model.RequestObjectToSend;
 
 public class CallBroadcastReceiver extends BroadcastReceiver {
@@ -27,6 +28,11 @@ public class CallBroadcastReceiver extends BroadcastReceiver {
   private String previousState;
   private Context mContext;
 
+  /**
+   * Read the internal Phone state database. Moving cursor to last call and read number and duration
+   * @param context
+   * @param intent
+   */
   @Override
   public void onReceive(Context context, Intent intent) {
     mContext = context;
@@ -64,9 +70,7 @@ public class CallBroadcastReceiver extends BroadcastReceiver {
           String jsonMessage = GsonManager.convertObjectToGsonString(objectToSend);
           Log.d(TAG, "CallBroadcastReceiver: " + jsonMessage);
 
-          Intent service = new Intent(mContext, DetectiveIntentService.class);
-          service.putExtra(Constants.MESSAGE_TO_SEND, jsonMessage);
-          mContext.startService(service);
+          ServiceManager.startService(context, jsonMessage);
         }
       }
     }
