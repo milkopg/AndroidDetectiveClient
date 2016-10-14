@@ -15,10 +15,10 @@ public class Constants {
   public static final String MESSAGE_TO_SEND = "messageToSend";
 
   public static final String HTTP_HEADER_CONTENT_TYPE = "Content-type";
-  public static final String HTTP_HEADER_CONTENT_LENGTH = "Content-Length";
   public static final String HTTP_HEADER_HOST = "Host";
   public static final String HTTP_HEADER_ACCEPT = "Accept";
-  public static final String HTTP_HEADER_LOCATION = "Location";
+
+  public static final String RECEIVER_CONTACTS = "ContactObserver";
 
   public static final String HTTP_REQUEST_METHOD_POST = "POST";
 

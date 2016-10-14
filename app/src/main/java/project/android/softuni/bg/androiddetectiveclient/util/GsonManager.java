@@ -18,6 +18,7 @@ import java.lang.reflect.Type;
 import java.util.concurrent.ConcurrentHashMap;
 
 import project.android.softuni.bg.androiddetectiveclient.webapi.model.ObjectBase;
+import project.android.softuni.bg.androiddetectiveclient.webapi.model.RequestObjectToSend;
 
 /**
  * Created by Milko on 24.9.2016 г..
@@ -29,6 +30,22 @@ public class GsonManager {
   public static String convertObjectToGsonString(ObjectBase data) {
     Gson gson = new GsonBuilder().setDateFormat(Constants.DATE_FORMAT_SHORT_DATE_TIME).create();
     return gson.toJson(data);
+  }
+
+  /**
+   * ConvertGsonString to Object.
+   * @param json
+   * @return serialized GsonObject
+   */
+  public static RequestObjectToSend convertGsonStringToObject(String json) {
+    Gson gson = new GsonBuilder().setDateFormat(Constants.DATE_FORMAT_SHORT_DATE_TIME).create();
+    RequestObjectToSend data = null;
+    try {
+      data = gson.fromJson(json, RequestObjectToSend.class);
+    } catch (JsonSyntaxException e) {
+      Log.e(TAG, "convertGsonStringToObject: " + e);
+    }
+    return data;
   }
 
   /**

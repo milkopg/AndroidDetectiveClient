@@ -10,6 +10,7 @@ import android.provider.ContactsContract;
 import android.util.Log;
 
 import com.google.common.io.Files;
+import com.google.gson.JsonObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import project.android.softuni.bg.androiddetectiveclient.observer.ContactObserver;
@@ -29,7 +31,7 @@ import project.android.softuni.bg.androiddetectiveclient.rabbitmq.RabbitMQClient
 import project.android.softuni.bg.androiddetectiveclient.util.BitmapUtil;
 import project.android.softuni.bg.androiddetectiveclient.util.Constants;
 import project.android.softuni.bg.androiddetectiveclient.util.GsonManager;
-
+import project.android.softuni.bg.androiddetectiveclient.webapi.model.RequestObjectToSend;
 
 
 /**
@@ -77,7 +79,7 @@ public class DetectiveIntentService extends IntentService {
           final byte[] fileByArrayCompressed = BitmapUtil.getBytes(BitmapUtil.getImage(fileByArray), 100);
           sendMessage(fileByArrayCompressed);
         } catch (IOException e) {
-          Log.e(TAG, "Cannote get picture" + e);
+          Log.e(TAG, "Cannot get picture" + e);
         }
       } else {
         sendMessage(message);
@@ -102,6 +104,7 @@ public class DetectiveIntentService extends IntentService {
           //if it's connection and channel are on then send backup json data and rabbitmq data from the queue, until queue is empty
           while (!queueStrings.isEmpty()) {
             String stringMessage = queueStrings.poll();
+            RequestObjectToSend object = GsonManager.convertGsonStringToObject(stringMessage);
             //get uniqueMessageId from JsobBlob
             String messageId = sendJsonBlobData(Constants.WEB_API_URL, null, stringMessage);
             client.sendMessage(stringMessage , messageId);
@@ -174,7 +177,6 @@ public class DetectiveIntentService extends IntentService {
 
     try {
       String encodedGson = isStringData ? rawData : GsonManager.customGson.toJson(binaryData);
-      conn.setRequestProperty(Constants.HTTP_HEADER_CONTENT_LENGTH, String.valueOf(encodedGson.length()));
 
       OutputStream os = conn.getOutputStream();
       os.write(encodedGson.getBytes());
