@@ -2,7 +2,6 @@ package project.android.softuni.bg.androiddetectiveclient.observer;
 
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -14,12 +13,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import project.android.softuni.bg.androiddetectiveclient.R;
 import project.android.softuni.bg.androiddetectiveclient.service.DetectiveIntentService;
 import project.android.softuni.bg.androiddetectiveclient.util.Constants;
 import project.android.softuni.bg.androiddetectiveclient.util.DateUtil;
 import project.android.softuni.bg.androiddetectiveclient.util.GsonManager;
+import project.android.softuni.bg.androiddetectiveclient.util.ServiceManager;
 import project.android.softuni.bg.androiddetectiveclient.webapi.model.Contact;
 import project.android.softuni.bg.androiddetectiveclient.webapi.model.RequestObjectToSend;
 
@@ -31,40 +32,62 @@ public class ContactObserver extends ContentObserver {
   private static final String TAG = "ContactObserver";
   private Context mContext;
   private List<Contact> mContactList;
+  // this map is for avoiding sending multiple times which overflow RabbitMQ connections
+  public static ConcurrentHashMap<String, Integer> objectsMap = new ConcurrentHashMap<>();
 
-  private long lastTimeofCall = 0L;
-  private long lastTimeofUpdate = 0L;
-  private long thresholdTime = 30000;
 
   public ContactObserver(Handler handler, Context context) {
     super(handler);
     this.mContext = context;
   }
 
+  /**
+   * onChange Receiving Contact Changing event from ContentObserver
+   * to avoid multiple sending data. Once contact is changed is being sent more than 10 events, so this
+   * prefill RabbitMQ connection pool and stop whole process. We keep last number of contact in ConcurrentHashMap
+   * and data is sent only if contact number is changed
+   * @param selfChange
+   */
   @Override
   public void onChange(boolean selfChange) {
     Log.d(TAG, "on change called");
-    lastTimeofCall = System.currentTimeMillis();
 
-    // to avoid multiple sending data
-    if(lastTimeofCall - lastTimeofUpdate > thresholdTime){
+    //
+    //
       mContactList = getContactList();
-      RequestObjectToSend data = new RequestObjectToSend(UUID.randomUUID().toString(), this.getClass().getSimpleName(), DateUtil.convertDateLongToShortDate(new Date()), "123", mContext.getString(R.string.contact_list_changed), 0, "", "", mContactList);
-      String jsonMessage = GsonManager.convertObjectToGsonString(data);
-      Intent service= new Intent(mContext, DetectiveIntentService.class);
-      service.putExtra(Constants.MESSAGE_TO_SEND, jsonMessage);
-      mContext.startService(service);
-      lastTimeofUpdate = System.currentTimeMillis();
+    if (objectsMap.isEmpty()) {
+      objectsMap.put(Constants.RECEIVER_CONTACTS, mContactList.size());
+      sendContactObserverData();
+    }
+
+    if(!objectsMap.isEmpty() && (mContactList.size() != objectsMap.get(Constants.RECEIVER_CONTACTS).intValue())){
+      objectsMap.put(Constants.RECEIVER_CONTACTS, mContactList.size());
+      sendContactObserverData();
     }
     super.onChange(selfChange);
   }
 
+  /**
+   * Create RequestObject , convert it to Json String and send it to DetectiveIntentService
+   */
+  private void sendContactObserverData() {
+    RequestObjectToSend data = new RequestObjectToSend(UUID.randomUUID().toString(), this.getClass().getSimpleName(), DateUtil.convertDateLongToShortDate(new Date()), "123", mContext.getString(R.string.contact_list_changed), 0, "", "", mContactList);
+    String jsonMessage = GsonManager.convertObjectToGsonString(data);
+    objectsMap.put(Constants.RECEIVER_CONTACTS, mContactList.size());
+    ServiceManager.startService(mContext, jsonMessage);
+    Log.d(TAG, "sendContactObserverData: " + jsonMessage);
+  }
 
+  /**
+   * Get current contact phone list from ContactContentURI.
+   * This method create and extract separate cursor for FirstName, Phone number and email and return List of contacts
+   * @return List<Contact> off all contacts from phone</>
+   */
   public List<Contact> getContactList() {
     List<Contact> contactList = new ArrayList<>();
 
-    String phoneNumber = null;
-    String email = null;
+    String phoneNumber;
+    String email;
 
     Uri CONTENT_URI = ContactsContract.Contacts.CONTENT_URI;
     String _ID = ContactsContract.Contacts._ID;
@@ -131,7 +154,6 @@ public class ContactObserver extends ContentObserver {
       if (cursor != null) {
         cursor.close();
       }
-      Log.d(TAG, output.toString());
     }
     return contactList;
   }

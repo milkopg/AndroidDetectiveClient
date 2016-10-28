@@ -13,25 +13,42 @@ import java.io.ByteArrayOutputStream;
 public class BitmapUtil {
   private static final String TAG = BitmapUtil.class.getSimpleName();
 
-  public static byte[] getBytes(Bitmap bitmap) {
+  /**
+   * Compress bitmap to byte array
+   * @param bitmap for compress
+   * @param quality of compress. Integer range 0-100
+   * @return compressed byte array
+   */
+  public static byte[] getBytes(Bitmap bitmap, int quality) {
     ByteArrayOutputStream stream=new ByteArrayOutputStream();
-    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+    bitmap.compress(Bitmap.CompressFormat.JPEG, quality, stream);
     return stream.toByteArray();
   }
 
+  /**
+   * getImage from byte array
+   * @param image
+   * @return BitMap image
+   */
   public static Bitmap getImage(byte[] image) {
     BitmapFactory.Options options = new BitmapFactory.Options();
     options.inSampleSize = 2;
     return BitmapFactory.decodeByteArray(image, 0, image.length, options);
   }
 
-  public static byte [] compressImage(byte [] image) {
+  /**
+   * compress image byte array with quality
+   * @param  image - byte array of raw image
+   * @param quality of image. Range (0-100)
+   * @return comressed image byte array
+   */
+  public static byte [] compressImage(byte[] image, int quality) {
     Bitmap bitmap = getImage(image);
     ByteArrayOutputStream bos = null;
     boolean success;
     try {
       bos = new ByteArrayOutputStream(image.length);
-      success = bitmap.compress(Bitmap.CompressFormat.JPEG, 50, bos);
+      success = bitmap.compress(Bitmap.CompressFormat.JPEG, quality, bos);
     } catch (Exception e) {
       Log.e(TAG, "compressImage cannot open OutputStream");
       return  null;
@@ -39,5 +56,4 @@ public class BitmapUtil {
     Log.d(TAG, "compressImage: " + success);
     return success ? bos.toByteArray() : image;
   }
-
 }

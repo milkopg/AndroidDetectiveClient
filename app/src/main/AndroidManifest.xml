@@ -46,14 +46,6 @@
             </intent-filter>
         </receiver>
         <receiver
-            android:name=".broadcast.sms.SmsDeliverBroadcastReceiver"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.provider.Telephony.SMS_DELIVER"/>
-            </intent-filter>
-        </receiver>
-        <receiver
             android:name=".broadcast.boot.OnBootCompleteBroadcastReceiver"
             android:enabled="true"
             android:exported="true">
