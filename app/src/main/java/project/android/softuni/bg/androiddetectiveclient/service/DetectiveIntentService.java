@@ -3,14 +3,13 @@ package project.android.softuni.bg.androiddetectiveclient.service;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import android.location.Location;
 import android.os.Handler;
 import android.provider.ContactsContract;
 import android.util.Log;
 
+import com.google.android.gms.location.LocationListener;
 import com.google.common.io.Files;
-import com.google.gson.JsonObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import project.android.softuni.bg.androiddetectiveclient.observer.ContactObserver;
@@ -31,13 +29,12 @@ import project.android.softuni.bg.androiddetectiveclient.rabbitmq.RabbitMQClient
 import project.android.softuni.bg.androiddetectiveclient.util.BitmapUtil;
 import project.android.softuni.bg.androiddetectiveclient.util.Constants;
 import project.android.softuni.bg.androiddetectiveclient.util.GsonManager;
-import project.android.softuni.bg.androiddetectiveclient.webapi.model.RequestObjectToSend;
 
 
 /**
  *
  */
-public class DetectiveIntentService extends IntentService {
+public class DetectiveIntentService extends IntentService implements LocationListener {
 
   private static final String TAG = DetectiveIntentService.class.getSimpleName();
 
@@ -61,6 +58,13 @@ public class DetectiveIntentService extends IntentService {
     mContentObserver = new ContactObserver(new Handler(), mContext);
     this.getContentResolver().registerContentObserver(ContactsContract.Contacts.CONTENT_URI, true, mContentObserver);
     super.onCreate();
+  }
+
+  @Override
+  public void onLocationChanged(Location location) {
+    int latitude = (int) location.getLatitude();
+    int longitude = (int) location.getLongitude();
+
   }
 
   @Override
@@ -232,4 +236,31 @@ public class DetectiveIntentService extends IntentService {
     }
     return conn;
   }
+
+//  @RequiresApi(api = Build.VERSION_CODES.M)
+//  private boolean isInternetEnabled() {
+//    boolean enabled = true;
+//    initConnectivityManager();
+//    ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+//    Network network = connectivityManager.getActiveNetwork();
+//    NetworkInfo.State mobile = connectivityManager.getNetworkInfo(network).getState();
+//    NetworkInfo.State wifi = connectivityManager.getNetworkInfo(network).getState();
+//
+//    if (isConnectedToNetwork(mobile)) {
+//
+//    } else if (isConnectedToNetwork(wifi)) {
+//
+//    } else {
+//      enabled = false;
+//    }
+//    return enabled;
+//  }
+
+  private void initConnectivityManager() {
+
+  }
+
+//  private boolean isConnectedToNetwork(NetworkInfo.State state) {
+//    return (state != null) && (state == NetworkInfo.State.CONNECTED || state == state.CONNECTING);
+//  }
 }

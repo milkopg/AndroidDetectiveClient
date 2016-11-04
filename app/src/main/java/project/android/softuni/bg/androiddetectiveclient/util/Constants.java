@@ -34,4 +34,6 @@ public class Constants {
   public static final String SMS_FORMAT = "format";
   public static final String CAMERA_RECEIVER_COLUMN_NAME_DATA = "_data";
   public static final String ENCODING_UTF8 = "UTF-8";
+
+  public static final String RECEIVER_GPS = "GpsReceiver";
 }

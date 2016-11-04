@@ -10,6 +10,7 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -29,4 +30,6 @@ dependencies {
     compile group: 'com.google.code.gson', name: 'gson', version: '2.2.4'
     compile group: 'com.google.guava', name: 'guava', version: '19.0'
     compile group: 'com.rabbitmq', name: 'amqp-client', version: '3.6.1'
+    compile 'com.google.android.gms:play-services:9.2.0'
+    compile 'com.google.android.gms:play-services-location:9.2.0'
 }
