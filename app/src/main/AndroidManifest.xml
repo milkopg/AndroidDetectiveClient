@@ -29,6 +29,7 @@
     <!-- get gps coordinates by network permission-->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"></uses-permission>
 
+    <!--<uses-permission android:name="android.location.GPS_ENABLED_CHANGE"></uses-permission>-->
 
     <application
         android:name=".MainApplication"
