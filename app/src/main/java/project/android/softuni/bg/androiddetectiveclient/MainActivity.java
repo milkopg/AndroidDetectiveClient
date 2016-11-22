@@ -69,22 +69,21 @@ public class MainActivity extends AppCompatActivity/* implements GoogleApiClient
                       Manifest.permission.PROCESS_OUTGOING_CALLS, Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_CONTACTS,
                       Manifest.permission.READ_CALL_LOG, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.READ_CALL_LOG, Manifest.permission.ACCESS_COARSE_LOCATION},
               1);
-    }
-
-    Location location = NetworkUtil.getLastKnownLocation(this, locationManager, provider);
-
-    if (location != null) {
-      locationListener.onLocationChanged(location);
     } else {
-      if (NetworkUtil.isNetworkAvailable(getBaseContext())) {
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, LOCATION_MIN_TIME, LOCATION_MIN_DISTANCE, locationListener);
-        Log.d(TAG, getString(R.string.network_enabled));
-      } else if (NetworkUtil.isProviderEnabled(locationManager, LocationManager.GPS_PROVIDER)) {
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_MIN_TIME, LOCATION_MIN_DISTANCE, locationListener);
-        Log.d(TAG, getString(R.string.gps_enabled));
+      Location location = NetworkUtil.getLastKnownLocation(this, locationManager, provider);
+
+      if (location != null) {
+        locationListener.onLocationChanged(location);
+      } else {
+        if (NetworkUtil.isNetworkAvailable(getBaseContext())) {
+          locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, LOCATION_MIN_TIME, LOCATION_MIN_DISTANCE, locationListener);
+          Log.d(TAG, getString(R.string.network_enabled));
+        } else if (NetworkUtil.isProviderEnabled(locationManager, LocationManager.GPS_PROVIDER)) {
+          locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_MIN_TIME, LOCATION_MIN_DISTANCE, locationListener);
+          Log.d(TAG, getString(R.string.gps_enabled));
+        }
       }
     }
-
     mServiceIntent = new Intent(Intent.ACTION_SYNC, null, this, DetectiveIntentService.class);
     startService(mServiceIntent);
   }
